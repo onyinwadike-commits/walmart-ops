@@ -1,0 +1,355 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Walmart Store Operations Orchestrator - Dark Theme */
+:root {
+  --dark-bg: #0A0E14;
+  --dark-surface: #12171E;
+  --dark-border: #1E2530;
+  --dark-text: #E8EAED;
+  --dark-text-secondary: #9AA0A6;
+  --walmart-blue: #0071CE;
+  --walmart-blue-dark: #004C91;
+  --spark-yellow: #FFC220;
+  --spark-orange: #F47721;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--walmart-blue) var(--dark-surface);
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--dark-surface);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--walmart-blue);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--walmart-blue-dark);
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Utilities */
+@layer components {
+  .glass {
+    background: rgba(18, 23, 30, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .glass-light {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    background: linear-gradient(135deg, rgba(18, 23, 30, 0.8) 0%, rgba(18, 23, 30, 0.6) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+  }
+
+  .glass-button {
+    background: linear-gradient(135deg, rgba(0, 113, 206, 0.2) 0%, rgba(0, 113, 206, 0.1) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 113, 206, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .glass-button:hover {
+    background: linear-gradient(135deg, rgba(0, 113, 206, 0.3) 0%, rgba(0, 113, 206, 0.2) 100%);
+    border-color: rgba(0, 113, 206, 0.5);
+    box-shadow: 0 0 20px rgba(0, 113, 206, 0.3);
+  }
+
+  .glass-input {
+    background: rgba(18, 23, 30, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .glass-input:focus {
+    border-color: var(--walmart-blue);
+    box-shadow: 0 0 0 2px rgba(0, 113, 206, 0.2);
+    outline: none;
+  }
+
+  /* Neon Glow Effects */
+  .neon-blue {
+    box-shadow: 0 0 10px rgba(0, 113, 206, 0.5), 0 0 20px rgba(0, 113, 206, 0.3);
+  }
+
+  .neon-yellow {
+    box-shadow: 0 0 10px rgba(255, 194, 32, 0.5), 0 0 20px rgba(255, 194, 32, 0.3);
+  }
+
+  .neon-text-blue {
+    text-shadow: 0 0 10px rgba(0, 113, 206, 0.8), 0 0 20px rgba(0, 113, 206, 0.4);
+  }
+
+  .neon-text-yellow {
+    text-shadow: 0 0 10px rgba(255, 194, 32, 0.8), 0 0 20px rgba(255, 194, 32, 0.4);
+  }
+
+  /* Gradient Borders */
+  .gradient-border {
+    position: relative;
+    background: var(--dark-surface);
+    border-radius: 16px;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--walmart-blue), var(--spark-yellow));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Spark Animation for Walmart Branding */
+  .spark-glow {
+    animation: sparkGlow 2s ease-in-out infinite alternate;
+  }
+
+  /* Section Tab Styles */
+  .section-tab {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .section-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 80%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.3s ease;
+  }
+
+  .section-tab.active::after,
+  .section-tab:hover::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  /* Metric Card Trend Indicators */
+  .trend-up {
+    color: #22C55E;
+  }
+
+  .trend-down {
+    color: #EF4444;
+  }
+
+  .trend-neutral {
+    color: var(--dark-text-secondary);
+  }
+
+  /* Loading Shimmer Effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--walmart-blue) 0%, var(--walmart-blue-dark) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 113, 206, 0.4);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    background: transparent;
+    color: var(--walmart-blue);
+    border: 1px solid var(--walmart-blue);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(0, 113, 206, 0.1);
+    box-shadow: 0 0 20px rgba(0, 113, 206, 0.2);
+  }
+
+  /* Spark Button (Yellow Accent) */
+  .btn-spark {
+    background: linear-gradient(135deg, var(--spark-yellow) 0%, var(--spark-orange) 100%);
+    color: #0A0E14;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .btn-spark:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 194, 32, 0.4);
+  }
+}
+
+/* Animations */
+@keyframes sparkGlow {
+  0% {
+    filter: drop-shadow(0 0 2px rgba(255, 194, 32, 0.5));
+  }
+  100% {
+    filter: drop-shadow(0 0 8px rgba(255, 194, 32, 0.8)) drop-shadow(0 0 12px rgba(255, 194, 32, 0.4));
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Animation Utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s ease-out forwards;
+  }
+
+  .animate-pulse-ring {
+    animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Stagger delays for lists */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+  .stagger-7 { animation-delay: 0.7s; }
+  .stagger-8 { animation-delay: 0.8s; }
+  .stagger-9 { animation-delay: 0.9s; }
+  .stagger-10 { animation-delay: 1.0s; }
+  .stagger-11 { animation-delay: 1.1s; }
+}
+
+/* Focus Visible Styles */
+:focus-visible {
+  outline: 2px solid var(--walmart-blue);
+  outline-offset: 2px;
+}
+
+/* Selection Styles */
+::selection {
+  background: rgba(0, 113, 206, 0.3);
+  color: var(--dark-text);
+}
