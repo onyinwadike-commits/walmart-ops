@@ -300,6 +300,8 @@ export class LLMOrchestrator {
       I: ['customer_insights', 'seasonal_planning', 'promotion_analysis'], // Entertainment
       J: ['operational_efficiency', 'customer_insights', 'compliance_audit'], // Financial Services
       K: ['ecommerce_integration', 'operational_efficiency', 'customer_traffic'], // eCommerce
+      L: ['customer_insights', 'operational_efficiency', 'associate_performance'], // User Feedback
+      M: ['visual_merchandising', 'inventory_optimization', 'operational_efficiency'], // Visual Merch AI
     };
 
     const tasks = sectionTaskMap[sectionKey] || ['operational_efficiency'];
