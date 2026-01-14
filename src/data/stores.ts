@@ -1,7 +1,7 @@
 // Market 396 - Las Vegas Metro Area Store Data
 // 2 stores under L5 Onyi's oversight
 
-export type SectionKey = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M';
+export type SectionKey = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
 
 export interface Section {
   key: SectionKey;
@@ -12,19 +12,16 @@ export interface Section {
 }
 
 export const SECTIONS: Section[] = [
-  { key: 'A', name: 'Fresh', description: 'Produce, Deli, Bakery, Meat', departments: ['Produce', 'Deli', 'Bakery', 'Meat'], color: '#22C55E' },
-  { key: 'B', name: 'Consumables', description: 'Grocery, HBA, OTC', departments: ['Grocery', 'HBA', 'Pharmacy OTC'], color: '#3B82F6' },
-  { key: 'C', name: 'Center Store', description: 'Paper, Chemicals, Pets', departments: ['Paper Goods', 'Chemicals', 'Pet Supplies'], color: '#A855F7' },
-  { key: 'D', name: 'GM Hardlines', description: 'Hardware, Auto, Sports', departments: ['Hardware', 'Automotive', 'Sporting Goods'], color: '#F97316' },
-  { key: 'E', name: 'GM Softlines', description: 'Apparel, Shoes, Jewelry', departments: ['Apparel', 'Footwear', 'Jewelry'], color: '#EC4899' },
-  { key: 'F', name: 'Electronics', description: 'TVs, Phones, Computing', departments: ['TV & Home Theater', 'Wireless', 'Computing'], color: '#06B6D4' },
-  { key: 'G', name: 'Home', description: 'Furniture, Decor, Bedding', departments: ['Furniture', 'Home Decor', 'Bedding'], color: '#EAB308' },
-  { key: 'H', name: 'Seasonal', description: 'Lawn, Garden, Holiday', departments: ['Lawn & Garden', 'Holiday', 'Outdoor Living'], color: '#84CC16' },
-  { key: 'I', name: 'Entertainment', description: 'Toys, Books, Media', departments: ['Toys', 'Books', 'Movies & Music'], color: '#F43F5E' },
-  { key: 'J', name: 'Financial Services', description: 'Money Services, Photo', departments: ['Money Services', 'Photo Lab', 'Wireless Activations'], color: '#6366F1' },
-  { key: 'K', name: 'eCommerce', description: 'OGP, Ship from Store', departments: ['OGP', 'Ship from Store', 'Returns'], color: '#14B8A6' },
-  { key: 'L', name: 'User Feedback', description: 'Feedback & Ratings', departments: ['User Feedback', 'Ratings', 'Surveys'], color: '#8B5CF6' },
-  { key: 'M', name: 'Visual Merch AI', description: 'AI Camera Analysis', departments: ['Visual Merch', 'Planogram', 'Display Analysis'], color: '#EC4899' },
+  { key: 'A', name: 'Executive Summary', description: 'High-level overview', departments: ['Summary', 'KPIs', 'Highlights'], color: '#22C55E' },
+  { key: 'B', name: 'Prioritized Action Plan', description: 'Today\'s priorities', departments: ['Actions', 'Tasks', 'Follow-ups'], color: '#3B82F6' },
+  { key: 'C', name: 'Competitive Outperform Plan', description: 'Beat the competition', departments: ['Strategy', 'Tactics', 'Positioning'], color: '#A855F7' },
+  { key: 'D', name: 'E-Commerce Benchmark', description: 'Online performance', departments: ['OGP', 'Delivery', 'Digital'], color: '#F97316' },
+  { key: 'E', name: 'Predictive Stress Map', description: 'Risk forecasting', departments: ['Predictions', 'Alerts', 'Trends'], color: '#EC4899' },
+  { key: 'F', name: 'Department Checklists', description: 'Daily task tracking', departments: ['Checklists', 'Compliance', 'Audits'], color: '#06B6D4' },
+  { key: 'G', name: 'Risk Watchlist', description: 'Monitor key risks', departments: ['Risks', 'Issues', 'Mitigation'], color: '#EAB308' },
+  { key: 'H', name: 'End-of-Day Scorecard', description: 'Daily performance', departments: ['Scores', 'Metrics', 'Results'], color: '#84CC16' },
+  { key: 'I', name: 'Communication Aids', description: 'Team messaging', departments: ['Announcements', 'Updates', 'Memos'], color: '#F43F5E' },
+  { key: 'J', name: 'Social Media Weekly Plan', description: 'Social content calendar', departments: ['Social', 'Content', 'Engagement'], color: '#6366F1' },
 ];
 
 export function getSectionByKey(key: SectionKey): Section | undefined {
@@ -75,7 +72,7 @@ export const MARKET_396_STORES: Store[] = [
     peakHours: ['10:00-12:00', '17:00-19:00'],
     departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy', 'Vision', 'Auto'],
     features: ['Grocery Pickup', 'MoneyCenter', 'Tire & Lube'],
-    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
     coordinates: { lat: 36.1579, lng: -115.1888 },
     competitorProximity: { target: 1.2, costco: 2.5, amazon: { freshHub: 3.1, lockerCount: 2 } }
   },
@@ -96,7 +93,7 @@ export const MARKET_396_STORES: Store[] = [
     peakHours: ['09:00-11:00', '16:00-19:00'],
     departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy', 'Garden', 'Sporting Goods'],
     features: ['Grocery Pickup', 'Grocery Delivery', 'Auto Care Center'],
-    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'],
     coordinates: { lat: 36.2689, lng: -115.2073 },
     competitorProximity: { target: 0.8, costco: 1.9, amazon: { freshHub: 2.8, lockerCount: 3 } }
   },

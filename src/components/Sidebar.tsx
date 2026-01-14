@@ -3,37 +3,31 @@
 import { useAppStore } from '@/stores/appStore';
 import { SECTIONS, SectionKey } from '@/data/stores';
 import {
-  Apple,
+  FileText,
+  ListChecks,
+  Target,
   ShoppingCart,
-  Package,
-  Wrench,
-  Shirt,
-  Tv,
-  Home,
-  Sun,
-  Gamepad2,
-  CreditCard,
-  Globe,
+  ActivitySquare,
+  ClipboardCheck,
+  AlertTriangle,
+  BarChart3,
+  MessageCircle,
+  Share2,
   ChevronRight,
-  MessageSquare,
-  Camera
 } from 'lucide-react';
 
 // Map section keys to icons
 const sectionIcons: Record<SectionKey, React.ReactNode> = {
-  A: <Apple size={18} />,
-  B: <ShoppingCart size={18} />,
-  C: <Package size={18} />,
-  D: <Wrench size={18} />,
-  E: <Shirt size={18} />,
-  F: <Tv size={18} />,
-  G: <Home size={18} />,
-  H: <Sun size={18} />,
-  I: <Gamepad2 size={18} />,
-  J: <CreditCard size={18} />,
-  K: <Globe size={18} />,
-  L: <MessageSquare size={18} />,
-  M: <Camera size={18} />,
+  A: <FileText size={18} />,
+  B: <ListChecks size={18} />,
+  C: <Target size={18} />,
+  D: <ShoppingCart size={18} />,
+  E: <ActivitySquare size={18} />,
+  F: <ClipboardCheck size={18} />,
+  G: <AlertTriangle size={18} />,
+  H: <BarChart3 size={18} />,
+  I: <MessageCircle size={18} />,
+  J: <Share2 size={18} />,
 };
 
 export default function Sidebar() {

@@ -289,19 +289,16 @@ export class LLMOrchestrator {
 
     // Map sections to relevant task types
     const sectionTaskMap: Record<SectionKey, TaskType[]> = {
-      A: ['inventory_optimization', 'shrink_prevention', 'visual_merchandising'], // Fresh
-      B: ['inventory_optimization', 'pricing_strategy', 'promotion_analysis'], // Consumables
-      C: ['inventory_optimization', 'supply_chain', 'visual_merchandising'], // Center Store
-      D: ['visual_merchandising', 'customer_insights', 'pricing_strategy'], // GM Hardlines
-      E: ['visual_merchandising', 'shrink_prevention', 'customer_insights'], // GM Softlines
-      F: ['shrink_prevention', 'competitor_analysis', 'customer_traffic'], // Electronics
-      G: ['visual_merchandising', 'customer_insights', 'seasonal_planning'], // Home
-      H: ['seasonal_planning', 'visual_merchandising', 'inventory_optimization'], // Seasonal
-      I: ['customer_insights', 'seasonal_planning', 'promotion_analysis'], // Entertainment
-      J: ['operational_efficiency', 'customer_insights', 'compliance_audit'], // Financial Services
-      K: ['ecommerce_integration', 'operational_efficiency', 'customer_traffic'], // eCommerce
-      L: ['customer_insights', 'operational_efficiency', 'associate_performance'], // User Feedback
-      M: ['visual_merchandising', 'inventory_optimization', 'operational_efficiency'], // Visual Merch AI
+      A: ['sales_forecast', 'operational_efficiency', 'customer_insights'], // Executive Summary
+      B: ['operational_efficiency', 'inventory_optimization', 'compliance_audit'], // Prioritized Action Plan
+      C: ['competitor_analysis', 'pricing_strategy', 'promotion_analysis'], // Competitive Outperform Plan
+      D: ['ecommerce_integration', 'operational_efficiency', 'customer_traffic'], // E-Commerce Benchmark
+      E: ['sales_forecast', 'customer_traffic', 'operational_efficiency'], // Predictive Stress Map
+      F: ['compliance_audit', 'operational_efficiency', 'inventory_optimization'], // Department Checklists
+      G: ['shrink_prevention', 'compliance_audit', 'operational_efficiency'], // Risk Watchlist
+      H: ['sales_forecast', 'operational_efficiency', 'associate_performance'], // End-of-Day Scorecard
+      I: ['customer_insights', 'associate_performance', 'operational_efficiency'], // Communication Aids
+      J: ['customer_insights', 'promotion_analysis', 'competitor_analysis'], // Social Media Weekly Plan
     };
 
     const tasks = sectionTaskMap[sectionKey] || ['operational_efficiency'];
