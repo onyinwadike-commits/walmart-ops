@@ -151,7 +151,7 @@ The pricing recommendations balance three key objectives:
 ### Workforce Analysis
 
 **Current State Assessment:**
-- Total associates: ${params.store?.associates || 285}
+- Total associates: 285
 - Labor as % of sales: 8.2% (Target: 7.8%)
 - Scheduling efficiency: 76% (Target: 85%)
 

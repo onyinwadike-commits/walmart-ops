@@ -245,11 +245,10 @@ Store Context:
 - Location: ${params.store.city}, ${params.store.state}
 - Format: ${params.store.format}
 - Square Footage: ${params.store.sqft.toLocaleString()} sq ft
-- Associates: ${params.store.associates}
-- Sales YTD: $${(params.store.metrics.salesYTD / 1000000).toFixed(1)}M
-- Comp %: ${params.store.metrics.compPercent}%
-- Inventory Accuracy: ${params.store.metrics.inventoryAccuracy}%
-- Customer Satisfaction: ${params.store.metrics.customerSatisfaction}/5
+- Tier: ${params.store.tier}
+- Avg Daily Traffic: ${params.store.avgDailyTraffic.toLocaleString()}
+- Features: ${params.store.features.join(', ')}
+- Departments: ${params.store.departments.join(', ')}
 
 ${params.context || ''}
 

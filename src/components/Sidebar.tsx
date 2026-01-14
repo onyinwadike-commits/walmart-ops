@@ -180,10 +180,10 @@ export default function Sidebar() {
                 </div>
                 <div>
                   <span className="text-lg font-bold text-spark-yellow">
-                    {selectedStore?.associates || 0}
+                    {selectedStore?.avgDailyTraffic.toLocaleString() || '-'}
                   </span>
                   <span className="text-xs text-dark-text-secondary block">
-                    Associates
+                    Daily Traffic
                   </span>
                 </div>
               </div>

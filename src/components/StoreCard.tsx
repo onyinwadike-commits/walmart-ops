@@ -1,15 +1,13 @@
 'use client';
 
 import {
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Star,
-  Users,
-  Package,
   MapPin,
   Calendar,
-  Building2
+  Building2,
+  Users,
+  Clock,
+  Phone,
+  Star,
 } from 'lucide-react';
 import { Store } from '@/data/stores';
 
@@ -19,39 +17,32 @@ interface StoreCardProps {
   onSelect?: () => void;
 }
 
-// Helper to format large numbers
-function formatCurrency(value: number): string {
-  if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(1)}M`;
+// Helper to format tier display
+function getTierColor(tier: Store['tier']): string {
+  switch (tier) {
+    case 'A+': return 'text-green-400 bg-green-500/20';
+    case 'A': return 'text-blue-400 bg-blue-500/20';
+    case 'B+': return 'text-purple-400 bg-purple-500/20';
+    case 'B': return 'text-yellow-400 bg-yellow-500/20';
+    case 'C+': return 'text-orange-400 bg-orange-500/20';
+    default: return 'text-gray-400 bg-gray-500/20';
   }
-  if (value >= 1000) {
-    return `$${(value / 1000).toFixed(0)}K`;
-  }
-  return `$${value}`;
-}
-
-// Helper to format percentage with trend
-function formatPercent(value: number): { text: string; isPositive: boolean } {
-  return {
-    text: `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`,
-    isPositive: value >= 0,
-  };
 }
 
 export default function StoreCard({ store, isSelected = false, onSelect }: StoreCardProps) {
-  const compTrend = formatPercent(store.metrics.compPercent);
+  const tierColor = getTierColor(store.tier);
 
   return (
     <div
       onClick={onSelect}
-      className={`glass-card p-6 transition-all duration-300 cursor-pointer group ${
+      className={`glass-card p-6 transition-all duration-300 cursor-pointer group relative ${
         isSelected
           ? 'ring-2 ring-walmart-blue neon-blue'
           : 'hover:ring-1 hover:ring-walmart-blue/50'
       }`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
             className={`flex items-center justify-center w-12 h-12 rounded-xl transition-all ${
@@ -69,113 +60,99 @@ export default function StoreCard({ store, isSelected = false, onSelect }: Store
             <p className="text-sm text-dark-text-secondary">{store.name}</p>
           </div>
         </div>
-        {isSelected && (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-spark-yellow/20">
-            <span className="w-2 h-2 rounded-full bg-spark-yellow animate-pulse" />
-            <span className="text-xs font-medium text-spark-yellow">Active</span>
+        <div className="flex flex-col items-end gap-2">
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${tierColor}`}>
+            Tier {store.tier}
+          </span>
+          {isSelected && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-spark-yellow/20">
+              <span className="w-2 h-2 rounded-full bg-spark-yellow animate-pulse" />
+              <span className="text-xs font-medium text-spark-yellow">Active</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Address */}
+      <div className="flex items-start gap-2 mb-4 text-sm text-dark-text-secondary">
+        <MapPin size={14} className="text-walmart-blue mt-0.5 shrink-0" />
+        <span>{store.address}, {store.city}, {store.state} {store.zip}</span>
+      </div>
+
+      {/* Store Info Grid */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="glass-light p-3 rounded-xl">
+          <div className="flex items-center gap-2 mb-1">
+            <Building2 size={14} className="text-walmart-blue" />
+            <span className="text-xs text-dark-text-secondary">Format</span>
           </div>
+          <p className="text-sm font-semibold text-dark-text">{store.format}</p>
+        </div>
+
+        <div className="glass-light p-3 rounded-xl">
+          <div className="flex items-center gap-2 mb-1">
+            <Users size={14} className="text-purple-400" />
+            <span className="text-xs text-dark-text-secondary">Daily Traffic</span>
+          </div>
+          <p className="text-sm font-semibold text-dark-text">{store.avgDailyTraffic.toLocaleString()}</p>
+        </div>
+
+        <div className="glass-light p-3 rounded-xl">
+          <div className="flex items-center gap-2 mb-1">
+            <Calendar size={14} className="text-spark-yellow" />
+            <span className="text-xs text-dark-text-secondary">Opened</span>
+          </div>
+          <p className="text-sm font-semibold text-dark-text">{new Date(store.openDate).getFullYear()}</p>
+        </div>
+
+        <div className="glass-light p-3 rounded-xl">
+          <div className="flex items-center gap-2 mb-1">
+            <Star size={14} className="text-green-400" />
+            <span className="text-xs text-dark-text-secondary">Sq Ft</span>
+          </div>
+          <p className="text-sm font-semibold text-dark-text">{(store.sqft / 1000).toFixed(0)}K</p>
+        </div>
+      </div>
+
+      {/* Peak Hours */}
+      <div className="flex items-center gap-2 mb-4">
+        <Clock size={14} className="text-dark-text-secondary" />
+        <span className="text-xs text-dark-text-secondary">Peak Hours:</span>
+        <div className="flex gap-2">
+          {store.peakHours.map((hours, i) => (
+            <span key={i} className="text-xs px-2 py-0.5 rounded bg-dark-surface text-dark-text">
+              {hours}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {store.features.slice(0, 3).map((feature, i) => (
+          <span key={i} className="text-xs px-2 py-1 rounded-full bg-walmart-blue/10 text-walmart-blue">
+            {feature}
+          </span>
+        ))}
+        {store.features.length > 3 && (
+          <span className="text-xs px-2 py-1 rounded-full bg-dark-surface text-dark-text-secondary">
+            +{store.features.length - 3} more
+          </span>
         )}
       </div>
 
-      {/* Location Info */}
-      <div className="flex items-center gap-4 mb-6 text-sm text-dark-text-secondary">
-        <div className="flex items-center gap-1.5">
-          <MapPin size={14} className="text-walmart-blue" />
-          <span>{store.city}, {store.state}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Calendar size={14} className="text-spark-yellow" />
-          <span>Since {new Date(store.openDate).getFullYear()}</span>
-        </div>
+      {/* Phone */}
+      <div className="flex items-center gap-2 pt-3 border-t border-dark-border">
+        <Phone size={14} className="text-dark-text-secondary" />
+        <span className="text-sm text-dark-text-secondary">{store.phone}</span>
       </div>
 
-      {/* Key Metrics Grid */}
-      <div className="grid grid-cols-3 gap-4">
-        {/* Sales YTD */}
-        <div className="glass-light p-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-green-500/20">
-              <DollarSign size={14} className="text-green-400" />
-            </div>
-            <span className="text-xs text-dark-text-secondary">Sales YTD</span>
-          </div>
-          <p className="text-xl font-bold text-dark-text">
-            {formatCurrency(store.metrics.salesYTD)}
-          </p>
+      {/* Competitor Proximity Indicator */}
+      {store.competitorProximity.target < 1.5 && (
+        <div className="absolute top-4 left-4 flex items-center px-2 py-1 rounded-full bg-red-500/20">
+          <span className="text-[10px] font-medium text-red-400">Target nearby</span>
         </div>
-
-        {/* Comp % */}
-        <div className="glass-light p-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`p-1.5 rounded-lg ${compTrend.isPositive ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-              {compTrend.isPositive ? (
-                <TrendingUp size={14} className="text-green-400" />
-              ) : (
-                <TrendingDown size={14} className="text-red-400" />
-              )}
-            </div>
-            <span className="text-xs text-dark-text-secondary">Comp %</span>
-          </div>
-          <p className={`text-xl font-bold ${compTrend.isPositive ? 'text-green-400' : 'text-red-400'}`}>
-            {compTrend.text}
-          </p>
-        </div>
-
-        {/* Customer Satisfaction */}
-        <div className="glass-light p-4 rounded-xl">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-spark-yellow/20">
-              <Star size={14} className="text-spark-yellow" />
-            </div>
-            <span className="text-xs text-dark-text-secondary">CSAT</span>
-          </div>
-          <p className="text-xl font-bold text-spark-yellow">
-            {store.metrics.customerSatisfaction.toFixed(1)}
-          </p>
-        </div>
-      </div>
-
-      {/* Secondary Metrics */}
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-dark-border">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Users size={14} className="text-walmart-blue" />
-            <span className="text-sm text-dark-text-secondary">
-              <span className="text-dark-text font-medium">{store.associates}</span> associates
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Package size={14} className="text-walmart-blue" />
-            <span className="text-sm text-dark-text-secondary">
-              <span className="text-dark-text font-medium">{store.metrics.inventoryAccuracy}%</span> accuracy
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-dark-text-secondary">Engagement:</span>
-          <div className="w-16 h-2 rounded-full bg-dark-surface overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${store.metrics.associateEngagement}%`,
-                background: `linear-gradient(90deg, #0071CE, ${
-                  store.metrics.associateEngagement > 80 ? '#22C55E' : '#FFC220'
-                })`,
-              }}
-            />
-          </div>
-          <span className="text-xs font-medium text-dark-text">
-            {store.metrics.associateEngagement}%
-          </span>
-        </div>
-      </div>
-
-      {/* Store Format Badge */}
-      <div className="absolute top-4 right-4 hidden group-hover:flex items-center px-2 py-1 rounded-full bg-dark-surface/80 backdrop-blur-sm animate-fade-in">
-        <span className="text-[10px] font-medium text-dark-text-secondary uppercase">
-          {store.format}
-        </span>
-      </div>
+      )}
     </div>
   );
 }
