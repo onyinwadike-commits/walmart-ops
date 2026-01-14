@@ -108,6 +108,22 @@ const MOCK_PRODUCTS: Record<SectionKey, { name: string; brand: string; category:
     { name: 'InHome Delivery Item', brand: 'Various', category: 'InHome', price: 0, margin: 0 },
     { name: 'Returns Processing', brand: 'Walmart', category: 'Returns', price: 0, margin: 0 },
   ],
+  L: [
+    { name: 'Customer Survey Kiosk', brand: 'Walmart', category: 'Feedback', price: 0, margin: 0 },
+    { name: 'Digital Rating Terminal', brand: 'Walmart', category: 'Ratings', price: 0, margin: 0 },
+    { name: 'NPS Collection Point', brand: 'Walmart', category: 'Surveys', price: 0, margin: 0 },
+    { name: 'Voice of Customer Display', brand: 'Walmart', category: 'Feedback', price: 0, margin: 0 },
+    { name: 'Associate Feedback Station', brand: 'Walmart', category: 'Ratings', price: 0, margin: 0 },
+    { name: 'Experience Rating Pad', brand: 'Walmart', category: 'Surveys', price: 0, margin: 0 },
+  ],
+  M: [
+    { name: 'AI Camera Module', brand: 'Walmart Tech', category: 'Visual Merch', price: 0, margin: 0 },
+    { name: 'Planogram Scanner', brand: 'Walmart Tech', category: 'Planogram', price: 0, margin: 0 },
+    { name: 'Shelf Compliance Sensor', brand: 'Walmart Tech', category: 'Display Analysis', price: 0, margin: 0 },
+    { name: 'Inventory Vision System', brand: 'Walmart Tech', category: 'Visual Merch', price: 0, margin: 0 },
+    { name: 'Display Analytics Hub', brand: 'Walmart Tech', category: 'Planogram', price: 0, margin: 0 },
+    { name: 'Smart Shelf Monitor', brand: 'Walmart Tech', category: 'Display Analysis', price: 0, margin: 0 },
+  ],
 };
 
 // Generate mock planogram data

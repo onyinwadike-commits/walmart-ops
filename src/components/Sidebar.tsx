@@ -14,7 +14,9 @@ import {
   Gamepad2,
   CreditCard,
   Globe,
-  ChevronRight
+  ChevronRight,
+  MessageSquare,
+  Camera
 } from 'lucide-react';
 
 // Map section keys to icons
@@ -30,6 +32,8 @@ const sectionIcons: Record<SectionKey, React.ReactNode> = {
   I: <Gamepad2 size={18} />,
   J: <CreditCard size={18} />,
   K: <Globe size={18} />,
+  L: <MessageSquare size={18} />,
+  M: <Camera size={18} />,
 };
 
 export default function Sidebar() {

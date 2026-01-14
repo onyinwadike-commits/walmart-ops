@@ -1,7 +1,7 @@
 // Market 396 - Las Vegas Metro Area Store Data
 // 9 stores under L5 Onyi's oversight
 
-export type SectionKey = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K';
+export type SectionKey = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M';
 
 export interface Section {
   key: SectionKey;
@@ -23,6 +23,8 @@ export const SECTIONS: Section[] = [
   { key: 'I', name: 'Entertainment', description: 'Toys, Books, Media', departments: ['Toys', 'Books', 'Movies & Music'], color: '#F43F5E' },
   { key: 'J', name: 'Financial Services', description: 'Money Services, Photo', departments: ['Money Services', 'Photo Lab', 'Wireless Activations'], color: '#6366F1' },
   { key: 'K', name: 'eCommerce', description: 'OGP, Ship from Store', departments: ['OGP', 'Ship from Store', 'Returns'], color: '#14B8A6' },
+  { key: 'L', name: 'User Feedback', description: 'Feedback & Ratings', departments: ['User Feedback', 'Ratings', 'Surveys'], color: '#8B5CF6' },
+  { key: 'M', name: 'Visual Merch AI', description: 'AI Camera Analysis', departments: ['Visual Merch', 'Planogram', 'Display Analysis'], color: '#EC4899' },
 ];
 
 export function getSectionByKey(key: SectionKey): Section | undefined {
