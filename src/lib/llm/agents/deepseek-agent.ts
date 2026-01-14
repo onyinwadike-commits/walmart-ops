@@ -102,7 +102,8 @@ export class DeepSeekAgent extends LLMAgent {
   }
 
   private getMockResponse(params: QueryParams, startTime: number): LLMResponse {
-    const inventoryAccuracy = params.store?.metrics.inventoryAccuracy || 97.5;
+    // Using mock values for demo purposes
+    const inventoryAccuracy = 97.5;
 
     const mockResponses: Record<string, string> = {
       inventory_optimization: `## Technical Inventory Analysis (Confidence: 94%)

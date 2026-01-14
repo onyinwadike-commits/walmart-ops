@@ -102,7 +102,8 @@ export class ChatGPTAgent extends LLMAgent {
 
   private getMockResponse(params: QueryParams, startTime: number): LLMResponse {
     const storeName = params.store?.name || 'Store';
-    const satisfaction = params.store?.metrics.customerSatisfaction || 4.3;
+    // Using mock values for demo purposes
+    const satisfaction = 4.3;
 
     const mockResponses: Record<string, string> = {
       customer_insights: `## Customer Intelligence Report (Confidence: 88%)
@@ -178,7 +179,7 @@ export class ChatGPTAgent extends LLMAgent {
 
 ### Team Performance Summary
 
-**Engagement Score: ${params.store?.metrics.associateEngagement || 78}%**
+**Engagement Score: 78%**
 
 **Department Performance:**
 | Department | Productivity | Engagement | Turnover |

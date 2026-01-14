@@ -4,64 +4,35 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Sparkles,
-  TrendingUp,
-  DollarSign,
-  Users,
-  Star,
-  Package,
-  BarChart3,
   ArrowRight,
   Zap,
   Target,
   Clock,
   CheckCircle2,
+  Building2,
+  Users,
+  MapPin,
 } from 'lucide-react';
-import { Header, Sidebar, StoreCard, SectionTabs, MetricCard } from '@/components';
+import { Header, Sidebar, StoreCard, SectionTabs } from '@/components';
 import { useAppStore } from '@/stores/appStore';
 import {
   MARKET_396_STORES,
-  getTotalSalesYTD,
-  getTotalAssociates,
-  getAverageCompPercent,
+  getTotalDailyTraffic,
   SECTIONS,
 } from '@/data/stores';
 
-// Format currency helper
-function formatCurrency(value: number): string {
-  if (value >= 1000000000) {
-    return `$${(value / 1000000000).toFixed(2)}B`;
-  }
-  if (value >= 1000000) {
-    return `$${(value / 1000000).toFixed(1)}M`;
-  }
-  if (value >= 1000) {
-    return `$${(value / 1000).toFixed(0)}K`;
-  }
-  return `$${value}`;
-}
-
 // Calculate market-wide metrics
 function getMarketMetrics() {
-  const totalSales = getTotalSalesYTD();
-  const totalAssociates = getTotalAssociates();
-  const avgComp = getAverageCompPercent();
-  const avgSatisfaction =
-    MARKET_396_STORES.reduce((sum, s) => sum + s.metrics.customerSatisfaction, 0) /
-    MARKET_396_STORES.length;
-  const avgInventoryAccuracy =
-    MARKET_396_STORES.reduce((sum, s) => sum + s.metrics.inventoryAccuracy, 0) /
-    MARKET_396_STORES.length;
-  const avgEngagement =
-    MARKET_396_STORES.reduce((sum, s) => sum + s.metrics.associateEngagement, 0) /
-    MARKET_396_STORES.length;
+  const totalDailyTraffic = getTotalDailyTraffic();
+  const supercenters = MARKET_396_STORES.filter(s => s.format === 'Supercenter').length;
+  const neighborhoodMarkets = MARKET_396_STORES.filter(s => s.format === 'Neighborhood Market').length;
+  const aPlusTierStores = MARKET_396_STORES.filter(s => s.tier === 'A+').length;
 
   return {
-    totalSales,
-    totalAssociates,
-    avgComp,
-    avgSatisfaction,
-    avgInventoryAccuracy,
-    avgEngagement,
+    totalDailyTraffic,
+    supercenters,
+    neighborhoodMarkets,
+    aPlusTierStores,
     storeCount: MARKET_396_STORES.length,
   };
 }
@@ -169,64 +140,55 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Market Overview Metrics */}
+          {/* Market Overview */}
           <section className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-dark-text">Market Overview</h2>
-              <span className="flex items-center gap-2 text-xs text-dark-text-secondary">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                Live Data
+              <span className="text-sm text-dark-text-secondary">
+                Las Vegas Metro Area
               </span>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              <MetricCard
-                title="Total Sales YTD"
-                value={formatCurrency(metrics.totalSales)}
-                icon={<DollarSign size={20} />}
-                trend={{ value: 4.5, label: 'vs last year' }}
-                color="green"
-                size="md"
-              />
-              <MetricCard
-                title="Avg Comp %"
-                value={`${metrics.avgComp.toFixed(1)}%`}
-                icon={<TrendingUp size={20} />}
-                trend={{ value: 0.8 }}
-                color="blue"
-                size="md"
-              />
-              <MetricCard
-                title="Total Associates"
-                value={metrics.totalAssociates.toLocaleString()}
-                icon={<Users size={20} />}
-                subtitle={`${metrics.storeCount} stores`}
-                color="purple"
-                size="md"
-              />
-              <MetricCard
-                title="Customer Satisfaction"
-                value={metrics.avgSatisfaction.toFixed(1)}
-                icon={<Star size={20} />}
-                trend={{ value: 2.1 }}
-                color="yellow"
-                size="md"
-              />
-              <MetricCard
-                title="Inventory Accuracy"
-                value={`${metrics.avgInventoryAccuracy.toFixed(1)}%`}
-                icon={<Package size={20} />}
-                color="cyan"
-                size="md"
-              />
-              <MetricCard
-                title="Engagement Score"
-                value={`${metrics.avgEngagement.toFixed(0)}%`}
-                icon={<BarChart3 size={20} />}
-                trend={{ value: 3.2 }}
-                color="green"
-                size="md"
-              />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="glass-card p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-walmart-blue/20">
+                    <Building2 size={20} className="text-walmart-blue" />
+                  </div>
+                  <span className="text-2xl font-bold text-dark-text">{metrics.storeCount}</span>
+                </div>
+                <p className="text-sm text-dark-text-secondary">Total Stores</p>
+              </div>
+
+              <div className="glass-card p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-green-500/20">
+                    <Building2 size={20} className="text-green-400" />
+                  </div>
+                  <span className="text-2xl font-bold text-dark-text">{metrics.supercenters}</span>
+                </div>
+                <p className="text-sm text-dark-text-secondary">Supercenters</p>
+              </div>
+
+              <div className="glass-card p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/20">
+                    <MapPin size={20} className="text-purple-400" />
+                  </div>
+                  <span className="text-2xl font-bold text-dark-text">{metrics.neighborhoodMarkets}</span>
+                </div>
+                <p className="text-sm text-dark-text-secondary">Neighborhood Markets</p>
+              </div>
+
+              <div className="glass-card p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-spark-yellow/20">
+                    <Users size={20} className="text-spark-yellow" />
+                  </div>
+                  <span className="text-2xl font-bold text-dark-text">{metrics.totalDailyTraffic.toLocaleString()}</span>
+                </div>
+                <p className="text-sm text-dark-text-secondary">Avg Daily Traffic</p>
+              </div>
             </div>
           </section>
 
@@ -325,9 +287,10 @@ export default function Dashboard() {
                 }}
               >
                 <h3 className="text-xl font-bold text-dark-text mb-4">
-                  Section {activeSectionData.key} Details
+                  Section {activeSectionData.key}: {activeSectionData.name}
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <p className="text-dark-text-secondary mb-4">{activeSectionData.description}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h4 className="text-sm font-medium text-dark-text-secondary mb-2">
                       Departments
@@ -346,37 +309,6 @@ export default function Dashboard() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-dark-text-secondary mb-2">
-                      Key Metrics
-                    </h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-dark-text-secondary">
-                          Sales Contribution
-                        </span>
-                        <span className="text-sm font-medium text-dark-text">
-                          {(Math.random() * 15 + 5).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-dark-text-secondary">
-                          In-Stock Rate
-                        </span>
-                        <span className="text-sm font-medium text-green-400">
-                          {(Math.random() * 3 + 96).toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-dark-text-secondary">
-                          Shrink Rate
-                        </span>
-                        <span className="text-sm font-medium text-spark-yellow">
-                          {(Math.random() * 1.5 + 0.5).toFixed(2)}%
-                        </span>
-                      </div>
-                    </div>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-dark-text-secondary mb-2">

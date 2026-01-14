@@ -191,7 +191,7 @@ function generateSeasonalAdjustments(storeId?: string, sectionKey?: SectionKey):
 
   const sections = sectionKey ? [sectionKey] : (['A', 'B', 'C', 'H'] as SectionKey[]);
 
-  return sections.map((section, idx) => ({
+  return sections.map((section) => ({
     id: `SEASONAL-${storeId || 'ALL'}-${section}-${currentSeason}`,
     storeId,
     sectionKey: section,

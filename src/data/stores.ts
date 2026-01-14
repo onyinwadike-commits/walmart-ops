@@ -37,205 +37,232 @@ export interface Store {
   city: string;
   state: string;
   zip: string;
-  format: 'Supercenter' | 'Neighborhood Market' | 'Division 1';
+  format: 'Supercenter' | 'Neighborhood Market';
   sqft: number;
-  associates: number;
+  phone: string;
   openDate: string;
-  marketManager: string;
-  storeManager: string;
+  tier: 'A+' | 'A' | 'B+' | 'B' | 'C+';
+  avgDailyTraffic: number;
+  peakHours: string[];
+  departments: string[];
+  features: string[];
   sections: SectionKey[];
   coordinates: { lat: number; lng: number };
-  metrics: {
-    salesYTD: number;
-    compPercent: number;
-    inventoryAccuracy: number;
-    customerSatisfaction: number;
-    associateEngagement: number;
+  competitorProximity: {
+    target: number;
+    costco: number;
+    amazon: { freshHub: number | null; lockerCount: number };
   };
 }
 
 export const MARKET_396_STORES: Store[] = [
   {
-    id: '1560',
-    number: 1560,
-    name: 'Las Vegas Supercenter',
-    address: '3615 S Rainbow Blvd',
+    id: 'store-2059',
+    number: 2059,
+    name: 'Charleston Supercenter',
+    address: '4505 W Charleston Blvd',
     city: 'Las Vegas',
     state: 'NV',
-    zip: '89103',
+    zip: '89102',
     format: 'Supercenter',
     sqft: 182000,
-    associates: 285,
+    phone: '(702) 878-0399',
     openDate: '1998-03-15',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
+    tier: 'A',
+    avgDailyTraffic: 12500,
+    peakHours: ['10:00-12:00', '17:00-19:00'],
+    departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy', 'Vision', 'Auto'],
+    features: ['Grocery Pickup', 'MoneyCenter', 'Tire & Lube'],
     sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.1215, lng: -115.2427 },
-    metrics: { salesYTD: 89200000, compPercent: 4.2, inventoryAccuracy: 97.8, customerSatisfaction: 4.3, associateEngagement: 78 }
+    coordinates: { lat: 36.1579, lng: -115.1888 },
+    competitorProximity: { target: 1.2, costco: 2.5, amazon: { freshHub: 3.1, lockerCount: 2 } }
   },
   {
-    id: '1584',
-    number: 1584,
-    name: 'Henderson Supercenter',
-    address: '540 Marks St',
-    city: 'Henderson',
+    id: 'store-3455',
+    number: 3455,
+    name: 'Craig Road Supercenter',
+    address: '6464 N Decatur Blvd',
+    city: 'Las Vegas',
     state: 'NV',
-    zip: '89014',
+    zip: '89131',
     format: 'Supercenter',
-    sqft: 197000,
-    associates: 312,
-    openDate: '1999-07-22',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
+    sqft: 198000,
+    phone: '(702) 515-8700',
+    openDate: '2005-07-22',
+    tier: 'A+',
+    avgDailyTraffic: 14200,
+    peakHours: ['09:00-11:00', '16:00-19:00'],
+    departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy', 'Garden', 'Sporting Goods'],
+    features: ['Grocery Pickup', 'Grocery Delivery', 'Auto Care Center'],
     sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.0397, lng: -115.0377 },
-    metrics: { salesYTD: 94500000, compPercent: 3.8, inventoryAccuracy: 98.1, customerSatisfaction: 4.4, associateEngagement: 81 }
+    coordinates: { lat: 36.2689, lng: -115.2073 },
+    competitorProximity: { target: 0.8, costco: 1.9, amazon: { freshHub: 2.8, lockerCount: 3 } }
   },
   {
-    id: '2050',
-    number: 2050,
-    name: 'North Las Vegas Supercenter',
-    address: '1807 W Craig Rd',
-    city: 'North Las Vegas',
+    id: 'store-5765',
+    number: 5765,
+    name: 'Tropicana Supercenter',
+    address: '4350 N Nellis Blvd',
+    city: 'Las Vegas',
     state: 'NV',
-    zip: '89032',
+    zip: '89115',
     format: 'Supercenter',
     sqft: 175000,
-    associates: 268,
+    phone: '(702) 459-2091',
     openDate: '2001-11-08',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
+    tier: 'B+',
+    avgDailyTraffic: 9800,
+    peakHours: ['11:00-13:00', '18:00-20:00'],
+    departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy'],
+    features: ['Grocery Pickup', 'MoneyCenter'],
     sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.2363, lng: -115.1485 },
-    metrics: { salesYTD: 78300000, compPercent: 5.1, inventoryAccuracy: 96.9, customerSatisfaction: 4.1, associateEngagement: 75 }
+    coordinates: { lat: 36.2105, lng: -115.0627 },
+    competitorProximity: { target: 2.1, costco: 4.5, amazon: { freshHub: null, lockerCount: 1 } }
   },
   {
-    id: '2593',
-    number: 2593,
-    name: 'Summerlin Supercenter',
+    id: 'store-4260',
+    number: 4260,
+    name: 'Blue Diamond Supercenter',
     address: '7200 Arroyo Crossing Pkwy',
     city: 'Las Vegas',
     state: 'NV',
     zip: '89113',
     format: 'Supercenter',
     sqft: 205000,
-    associates: 342,
-    openDate: '2004-06-18',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
+    phone: '(702) 365-9600',
+    openDate: '2008-09-12',
+    tier: 'A+',
+    avgDailyTraffic: 15500,
+    peakHours: ['10:00-12:00', '16:00-19:00'],
+    departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy', 'Vision', 'Garden', 'Sporting Goods'],
+    features: ['Grocery Pickup', 'Grocery Delivery', 'Auto Care Center', 'Pharmacy Drive-Thru'],
     sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.0825, lng: -115.3049 },
-    metrics: { salesYTD: 102400000, compPercent: 6.2, inventoryAccuracy: 98.5, customerSatisfaction: 4.6, associateEngagement: 84 }
+    coordinates: { lat: 36.0642, lng: -115.2442 },
+    competitorProximity: { target: 1.5, costco: 2.2, amazon: { freshHub: 1.8, lockerCount: 4 } }
   },
   {
-    id: '2838',
-    number: 2838,
-    name: 'Spring Valley Supercenter',
-    address: '4505 W Charleston Blvd',
-    city: 'Las Vegas',
-    state: 'NV',
-    zip: '89102',
-    format: 'Supercenter',
-    sqft: 168000,
-    associates: 255,
-    openDate: '2005-09-12',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
-    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.1592, lng: -115.2117 },
-    metrics: { salesYTD: 71200000, compPercent: 2.9, inventoryAccuracy: 97.2, customerSatisfaction: 4.2, associateEngagement: 76 }
-  },
-  {
-    id: '4356',
-    number: 4356,
-    name: 'Centennial Hills Supercenter',
-    address: '6464 N Decatur Blvd',
-    city: 'Las Vegas',
-    state: 'NV',
-    zip: '89131',
-    format: 'Supercenter',
-    sqft: 188000,
-    associates: 298,
-    openDate: '2007-04-20',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
-    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.2716, lng: -115.2117 },
-    metrics: { salesYTD: 86700000, compPercent: 4.8, inventoryAccuracy: 97.9, customerSatisfaction: 4.4, associateEngagement: 79 }
-  },
-  {
-    id: '4557',
-    number: 4557,
-    name: 'Southwest Las Vegas Supercenter',
-    address: '8060 W Tropical Pkwy',
-    city: 'Las Vegas',
-    state: 'NV',
-    zip: '89149',
-    format: 'Supercenter',
-    sqft: 192000,
-    associates: 305,
-    openDate: '2008-08-15',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
-    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.2827, lng: -115.2836 },
-    metrics: { salesYTD: 91800000, compPercent: 5.5, inventoryAccuracy: 98.0, customerSatisfaction: 4.5, associateEngagement: 82 }
-  },
-  {
-    id: '5070',
-    number: 5070,
-    name: 'Boulder Highway Supercenter',
-    address: '4350 N Nellis Blvd',
-    city: 'Las Vegas',
-    state: 'NV',
-    zip: '89115',
-    format: 'Supercenter',
-    sqft: 171000,
-    associates: 262,
-    openDate: '2010-02-28',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
-    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.2152, lng: -115.0621 },
-    metrics: { salesYTD: 74500000, compPercent: 3.2, inventoryAccuracy: 96.5, customerSatisfaction: 4.0, associateEngagement: 73 }
-  },
-  {
-    id: '5101',
-    number: 5101,
-    name: 'Green Valley Supercenter',
-    address: '300 N Stephanie St',
+    id: 'store-1807',
+    number: 1807,
+    name: 'Henderson Supercenter',
+    address: '540 Marks St',
     city: 'Henderson',
     state: 'NV',
     zip: '89014',
     format: 'Supercenter',
-    sqft: 199000,
-    associates: 318,
-    openDate: '2011-05-06',
-    marketManager: 'Regional Director',
-    storeManager: 'TBD',
+    sqft: 168000,
+    phone: '(702) 547-2653',
+    openDate: '1996-05-20',
+    tier: 'B',
+    avgDailyTraffic: 8200,
+    peakHours: ['09:00-11:00', '17:00-19:00'],
+    departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy'],
+    features: ['Grocery Pickup', 'MoneyCenter'],
     sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
-    coordinates: { lat: 36.0545, lng: -115.0427 },
-    metrics: { salesYTD: 97200000, compPercent: 4.5, inventoryAccuracy: 98.3, customerSatisfaction: 4.5, associateEngagement: 83 }
+    coordinates: { lat: 36.0397, lng: -114.9714 },
+    competitorProximity: { target: 1.8, costco: 3.2, amazon: { freshHub: null, lockerCount: 1 } }
   },
+  {
+    id: 'store-4338',
+    number: 4338,
+    name: 'Centennial Hills Supercenter',
+    address: '6310 N Simmons St',
+    city: 'North Las Vegas',
+    state: 'NV',
+    zip: '89031',
+    format: 'Supercenter',
+    sqft: 210000,
+    phone: '(702) 633-4900',
+    openDate: '2010-03-28',
+    tier: 'A+',
+    avgDailyTraffic: 16800,
+    peakHours: ['09:00-12:00', '15:00-19:00'],
+    departments: ['Grocery', 'Electronics', 'Home', 'Apparel', 'Pharmacy', 'Vision', 'Garden', 'Sporting Goods', 'Wireless'],
+    features: ['Grocery Pickup', 'Grocery Delivery', 'Auto Care Center', 'Pharmacy Drive-Thru', 'FedEx'],
+    sections: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+    coordinates: { lat: 36.2856, lng: -115.2457 },
+    competitorProximity: { target: 0.6, costco: 1.5, amazon: { freshHub: 2.1, lockerCount: 5 } }
+  },
+  {
+    id: 'store-3807',
+    number: 3807,
+    name: 'Flamingo Neighborhood Market',
+    address: '6005 W Flamingo Rd',
+    city: 'Las Vegas',
+    state: 'NV',
+    zip: '89103',
+    format: 'Neighborhood Market',
+    sqft: 42000,
+    phone: '(702) 889-8800',
+    openDate: '2015-08-14',
+    tier: 'B+',
+    avgDailyTraffic: 3200,
+    peakHours: ['07:00-09:00', '17:00-19:00'],
+    departments: ['Grocery', 'Pharmacy', 'Deli'],
+    features: ['Grocery Pickup', 'Pharmacy Drive-Thru'],
+    sections: ['A', 'B', 'C'],
+    coordinates: { lat: 36.1152, lng: -115.2148 },
+    competitorProximity: { target: 2.8, costco: 3.5, amazon: { freshHub: 1.2, lockerCount: 1 } }
+  },
+  {
+    id: 'store-5005',
+    number: 5005,
+    name: 'Sahara Neighborhood Market',
+    address: '4555 E Sahara Ave',
+    city: 'Las Vegas',
+    state: 'NV',
+    zip: '89104',
+    format: 'Neighborhood Market',
+    sqft: 38000,
+    phone: '(702) 431-2010',
+    openDate: '2016-11-02',
+    tier: 'C+',
+    avgDailyTraffic: 2100,
+    peakHours: ['08:00-10:00', '18:00-20:00'],
+    departments: ['Grocery', 'Pharmacy'],
+    features: ['Grocery Pickup'],
+    sections: ['A', 'B'],
+    coordinates: { lat: 36.1446, lng: -115.0948 },
+    competitorProximity: { target: 3.5, costco: 5.2, amazon: { freshHub: null, lockerCount: 0 } }
+  },
+  {
+    id: 'store-5107',
+    number: 5107,
+    name: 'Rainbow Neighborhood Market',
+    address: '2310 S Rainbow Blvd',
+    city: 'Las Vegas',
+    state: 'NV',
+    zip: '89146',
+    format: 'Neighborhood Market',
+    sqft: 45000,
+    phone: '(702) 259-3600',
+    openDate: '2014-02-08',
+    tier: 'B',
+    avgDailyTraffic: 2800,
+    peakHours: ['07:00-09:00', '16:00-18:00'],
+    departments: ['Grocery', 'Pharmacy', 'Deli', 'Bakery'],
+    features: ['Grocery Pickup', 'Pharmacy Drive-Thru'],
+    sections: ['A', 'B', 'C'],
+    coordinates: { lat: 36.1425, lng: -115.2427 },
+    competitorProximity: { target: 2.2, costco: 2.8, amazon: { freshHub: 2.5, lockerCount: 1 } }
+  }
 ];
 
 export function getStoreById(id: string): Store | undefined {
   return MARKET_396_STORES.find(store => store.id === id);
 }
 
+export function getStoreByNumber(number: number): Store | undefined {
+  return MARKET_396_STORES.find(store => store.number === number);
+}
+
 export function getStoresByFormat(format: Store['format']): Store[] {
   return MARKET_396_STORES.filter(store => store.format === format);
 }
 
-export function getTotalAssociates(): number {
-  return MARKET_396_STORES.reduce((sum, store) => sum + store.associates, 0);
+export function getStoresByTier(tier: Store['tier']): Store[] {
+  return MARKET_396_STORES.filter(store => store.tier === tier);
 }
 
-export function getTotalSalesYTD(): number {
-  return MARKET_396_STORES.reduce((sum, store) => sum + store.metrics.salesYTD, 0);
-}
-
-export function getAverageCompPercent(): number {
-  const total = MARKET_396_STORES.reduce((sum, store) => sum + store.metrics.compPercent, 0);
-  return total / MARKET_396_STORES.length;
+export function getTotalDailyTraffic(): number {
+  return MARKET_396_STORES.reduce((sum, store) => sum + store.avgDailyTraffic, 0);
 }
