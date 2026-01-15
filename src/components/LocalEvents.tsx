@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Calendar,
   MapPin,
@@ -61,13 +61,17 @@ export default function LocalEvents() {
   const { selectedStore } = useAppStore();
   const store = selectedStore || MARKET_396_STORES[0];
 
+  // Use store ID for reliable change detection
+  const storeId = store.id;
+
   const [events, setEvents] = useState<LocalEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastFetch, setLastFetch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEvents = useCallback(async (forceRefresh = false) => {
+  // Fetch events function
+  const fetchEvents = async (forceRefresh = false) => {
     try {
       if (forceRefresh) {
         setIsRefreshing(true);
@@ -81,8 +85,10 @@ export default function LocalEvents() {
         lng: String(store.coordinates.lng),
       });
 
-      const response = await fetch(`/api/events?${params}`, {
+      // Add cache-busting and disable browser cache
+      const response = await fetch(`/api/events?${params}&_t=${Date.now()}`, {
         method: forceRefresh ? 'POST' : 'GET',
+        cache: 'no-store',
       });
 
       const data: EventsResponse = await response.json();
@@ -100,12 +106,13 @@ export default function LocalEvents() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [store.coordinates.lat, store.coordinates.lng]);
+  };
 
-  // Refetch events when store changes
+  // Refetch events when store changes (using storeId for reliable detection)
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeId, store.coordinates.lat, store.coordinates.lng]);
 
   const formatLastFetch = (dateStr: string) => {
     const date = new Date(dateStr);
