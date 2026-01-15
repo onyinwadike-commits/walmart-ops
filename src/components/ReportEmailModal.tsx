@@ -114,6 +114,25 @@ export default function ReportEmailModal({
     setStatus('generating');
     setProgress(0);
 
+    // Simulate progress while the API is working
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev < 30) {
+          setCurrentStep('Generating reports...');
+          return prev + 5;
+        } else if (prev < 60) {
+          setStatus('formatting');
+          setCurrentStep('Formatting with Gemini AI...');
+          return prev + 3;
+        } else if (prev < 85) {
+          setStatus('sending');
+          setCurrentStep('Sending email...');
+          return prev + 2;
+        }
+        return prev;
+      });
+    }, 500);
+
     try {
       const response = await fetch('/api/generate-email-report', {
         method: 'POST',
@@ -126,41 +145,20 @@ export default function ReportEmailModal({
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate report');
+      clearInterval(progressInterval);
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        setProgress(100);
+        setCurrentStep(data.step || 'Report sent successfully!');
+        setStatus('success');
+      } else {
+        setError(data.error || 'Failed to send email');
+        setStatus('error');
       }
-
-      // Stream the progress updates
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const text = decoder.decode(value);
-          const lines = text.split('\n').filter(l => l.trim());
-
-          for (const line of lines) {
-            try {
-              const data = JSON.parse(line);
-              if (data.progress) setProgress(data.progress);
-              if (data.step) setCurrentStep(data.step);
-              if (data.status) setStatus(data.status as GenerationStatus);
-              if (data.error) {
-                setError(data.error);
-                setStatus('error');
-              }
-            } catch {
-              // Not JSON, skip
-            }
-          }
-        }
-      }
-
-      setStatus('success');
     } catch (err) {
+      clearInterval(progressInterval);
       setError(err instanceof Error ? err.message : 'An error occurred');
       setStatus('error');
     }

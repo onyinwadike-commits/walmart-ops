@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { STORE_2593 } from '@/data/stores';
 
 type SectionId = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K';
@@ -29,38 +29,33 @@ const SECTION_TITLES: Record<SectionId, string> = {
   K: 'Amazon Warfare Strategy',
 };
 
-// Helper to create a streaming response
-function createStreamResponse() {
-  const encoder = new TextEncoder();
-  let controller: ReadableStreamDefaultController<Uint8Array>;
-
-  const stream = new ReadableStream<Uint8Array>({
-    start(c) {
-      controller = c;
-    },
-  });
-
-  const sendUpdate = (data: object) => {
-    controller.enqueue(encoder.encode(JSON.stringify(data) + '\n'));
-  };
-
-  const close = () => {
-    controller.close();
-  };
-
-  return { stream, sendUpdate, close };
+// Get the base URL for internal API calls
+function getBaseUrl(): string {
+  // For Vercel deployments
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // For explicit base URL
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+  // Fallback for local development
+  return 'http://localhost:3000';
 }
 
 // Fetch a single report section
 async function fetchReportSection(sectionId: SectionId, storeNumber: number): Promise<ReportSection | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = getBaseUrl();
+    console.log(`Fetching section ${sectionId} from ${baseUrl}/api/quick-actions/${sectionId}`);
+
     const response = await fetch(`${baseUrl}/api/quick-actions/${sectionId}?store=${storeNumber}`, {
       method: 'POST', // Force fresh generation
+      cache: 'no-store',
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch section ${sectionId}`);
+      console.error(`Failed to fetch section ${sectionId}: ${response.status}`);
       return null;
     }
 
@@ -114,7 +109,7 @@ async function formatWithGemini(
   }).join('\n---\n');
 
   if (!apiKey) {
-    // Return formatted but not AI-enhanced
+    console.log('No Gemini API key, using fallback formatter');
     return formatAsHtmlEmail(reports, storeNumber, storeName);
   }
 
@@ -145,7 +140,7 @@ Requirements:
 Raw Report Data:
 ${rawContent}
 
-Generate the formatted report as clean HTML suitable for email. Use inline styles for formatting. Make it visually appealing with Walmart brand colors (blue #0071CE, yellow #FFC220).`,
+Generate the formatted report as clean HTML suitable for email. Use inline styles for formatting. Make it visually appealing with Walmart brand colors (blue #0071CE, yellow #FFC220). Start directly with the HTML, no markdown code blocks.`,
           }],
         }],
         generationConfig: {
@@ -156,7 +151,7 @@ Generate the formatted report as clean HTML suitable for email. Use inline style
     });
 
     if (!response.ok) {
-      console.error('Gemini API error:', response.status);
+      console.error('Gemini API error:', response.status, await response.text());
       return formatAsHtmlEmail(reports, storeNumber, storeName);
     }
 
@@ -164,15 +159,17 @@ Generate the formatted report as clean HTML suitable for email. Use inline style
     const generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     // Extract HTML from the response (Gemini might wrap it in markdown code blocks)
-    const htmlMatch = generatedContent.match(/```html\n?([\s\S]*?)\n?```/) ||
-                      generatedContent.match(/<html[\s\S]*<\/html>/) ||
-                      generatedContent.match(/<body[\s\S]*<\/body>/);
-
+    const htmlMatch = generatedContent.match(/```html\n?([\s\S]*?)\n?```/);
     if (htmlMatch) {
-      return htmlMatch[1] || htmlMatch[0];
+      return htmlMatch[1];
     }
 
-    // If no HTML tags found, wrap the content
+    // Check if it starts with HTML
+    if (generatedContent.trim().startsWith('<')) {
+      return generatedContent;
+    }
+
+    // Wrap non-HTML content
     return `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
         ${generatedContent.replace(/\n/g, '<br>')}
@@ -292,150 +289,205 @@ function formatAsHtmlEmail(reports: ReportSection[], storeNumber: number, storeN
   return html;
 }
 
-// Send email using various services
-async function sendEmail(to: string, subject: string, htmlContent: string): Promise<boolean> {
+// Send email using Resend
+async function sendEmailWithResend(to: string, subject: string, htmlContent: string): Promise<{ success: boolean; error?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    return { success: false, error: 'RESEND_API_KEY not configured' };
+  }
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM_EMAIL || 'Walmart Ops <onboarding@resend.dev>',
+        to: [to],
+        subject,
+        html: htmlContent,
+      }),
+    });
+
+    const responseData = await response.json();
+
+    if (response.ok) {
+      console.log('Email sent successfully via Resend:', responseData);
+      return { success: true };
+    } else {
+      console.error('Resend API error:', responseData);
+      return { success: false, error: responseData.message || 'Failed to send email' };
+    }
+  } catch (error) {
+    console.error('Resend error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+  }
+}
+
+// Send email using SendGrid
+async function sendEmailWithSendGrid(to: string, subject: string, htmlContent: string): Promise<{ success: boolean; error?: string }> {
+  const apiKey = process.env.SENDGRID_API_KEY;
+
+  if (!apiKey) {
+    return { success: false, error: 'SENDGRID_API_KEY not configured' };
+  }
+
+  try {
+    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        personalizations: [{ to: [{ email: to }] }],
+        from: { email: process.env.SENDGRID_FROM_EMAIL || 'reports@walmart-ops.com' },
+        subject,
+        content: [{ type: 'text/html', value: htmlContent }],
+      }),
+    });
+
+    if (response.ok || response.status === 202) {
+      console.log('Email sent successfully via SendGrid');
+      return { success: true };
+    } else {
+      const errorText = await response.text();
+      console.error('SendGrid API error:', errorText);
+      return { success: false, error: errorText };
+    }
+  } catch (error) {
+    console.error('SendGrid error:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Network error' };
+  }
+}
+
+// Main email sending function - tries available services
+async function sendEmail(to: string, subject: string, htmlContent: string): Promise<{ success: boolean; error?: string; service?: string }> {
   // Try Resend first
   if (process.env.RESEND_API_KEY) {
-    try {
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: process.env.RESEND_FROM_EMAIL || 'Walmart Ops <reports@resend.dev>',
-          to: [to],
-          subject,
-          html: htmlContent,
-        }),
-      });
-
-      if (response.ok) {
-        return true;
-      }
-      console.error('Resend error:', await response.text());
-    } catch (error) {
-      console.error('Resend error:', error);
+    const result = await sendEmailWithResend(to, subject, htmlContent);
+    if (result.success) {
+      return { ...result, service: 'Resend' };
     }
+    console.log('Resend failed, trying next service...');
   }
 
   // Try SendGrid
   if (process.env.SENDGRID_API_KEY) {
-    try {
-      const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          personalizations: [{ to: [{ email: to }] }],
-          from: { email: process.env.SENDGRID_FROM_EMAIL || 'reports@walmart-ops.com' },
-          subject,
-          content: [{ type: 'text/html', value: htmlContent }],
-        }),
-      });
-
-      if (response.ok || response.status === 202) {
-        return true;
-      }
-      console.error('SendGrid error:', await response.text());
-    } catch (error) {
-      console.error('SendGrid error:', error);
+    const result = await sendEmailWithSendGrid(to, subject, htmlContent);
+    if (result.success) {
+      return { ...result, service: 'SendGrid' };
     }
+    console.log('SendGrid failed');
   }
 
-  // For demo purposes, log the email content if no email service is configured
-  console.log('=== EMAIL WOULD BE SENT ===');
-  console.log('To:', to);
-  console.log('Subject:', subject);
-  console.log('Content length:', htmlContent.length);
-  console.log('===========================');
+  // No email service configured
+  return {
+    success: false,
+    error: 'No email service configured. Please add RESEND_API_KEY or SENDGRID_API_KEY to environment variables.'
+  };
+}
 
-  // Return true for demo (in production, return false if no email service)
-  return true;
+interface ProgressUpdate {
+  status: 'generating' | 'formatting' | 'sending' | 'success' | 'error';
+  progress: number;
+  step: string;
+  error?: string;
 }
 
 export async function POST(request: NextRequest) {
-  const { stream, sendUpdate, close } = createStreamResponse();
+  try {
+    const body = await request.json();
+    const { email, sections, storeNumber } = body;
+    const storeName = STORE_2593.name;
 
-  // Process in background
-  (async () => {
-    try {
-      const body = await request.json();
-      const { email, sections, storeNumber } = body;
-      const storeName = STORE_2593.name;
-
-      if (!email || !sections || sections.length === 0) {
-        sendUpdate({ error: 'Missing required fields', status: 'error' });
-        close();
-        return;
-      }
-
-      const totalSteps = sections.length + 2; // sections + formatting + sending
-      let currentStep = 0;
-
-      sendUpdate({ status: 'generating', progress: 0, step: 'Starting report generation...' });
-
-      // Fetch all selected reports
-      const reports: ReportSection[] = [];
-      for (const sectionId of sections as SectionId[]) {
-        currentStep++;
-        const progress = (currentStep / totalSteps) * 100;
-        sendUpdate({
-          progress,
-          step: `Generating ${SECTION_TITLES[sectionId]}...`
-        });
-
-        const report = await fetchReportSection(sectionId, storeNumber);
-        if (report) {
-          reports.push(report);
-        }
-
-        // Small delay to show progress
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-
-      // Format with Gemini
-      currentStep++;
-      sendUpdate({
-        status: 'formatting',
-        progress: (currentStep / totalSteps) * 100,
-        step: 'Formatting report with Gemini AI...'
-      });
-
-      const formattedHtml = await formatWithGemini(reports, storeNumber, storeName);
-
-      // Send email
-      currentStep++;
-      sendUpdate({
-        status: 'sending',
-        progress: (currentStep / totalSteps) * 100,
-        step: 'Sending email...'
-      });
-
-      const emailSubject = `Store #${storeNumber} Operations Report - ${new Date().toLocaleDateString()}`;
-      const emailSent = await sendEmail(email, emailSubject, formattedHtml);
-
-      if (emailSent) {
-        sendUpdate({ status: 'success', progress: 100, step: 'Report sent successfully!' });
-      } else {
-        sendUpdate({ error: 'Failed to send email. Please check email configuration.', status: 'error' });
-      }
-
-    } catch (error) {
-      console.error('Report generation error:', error);
-      sendUpdate({ error: 'An error occurred while generating the report', status: 'error' });
-    } finally {
-      close();
+    if (!email || !sections || sections.length === 0) {
+      return NextResponse.json({
+        error: 'Missing required fields',
+        status: 'error'
+      }, { status: 400 });
     }
-  })();
 
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Transfer-Encoding': 'chunked',
-    },
-  });
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({
+        error: 'Invalid email address',
+        status: 'error'
+      }, { status: 400 });
+    }
+
+    const updates: ProgressUpdate[] = [];
+    const totalSteps = sections.length + 2; // sections + formatting + sending
+    let currentStep = 0;
+
+    // Fetch all selected reports
+    const reports: ReportSection[] = [];
+    for (const sectionId of sections as SectionId[]) {
+      currentStep++;
+      updates.push({
+        status: 'generating',
+        progress: (currentStep / totalSteps) * 100,
+        step: `Generating ${SECTION_TITLES[sectionId]}...`
+      });
+
+      const report = await fetchReportSection(sectionId, storeNumber);
+      if (report) {
+        reports.push(report);
+      }
+    }
+
+    if (reports.length === 0) {
+      return NextResponse.json({
+        error: 'Failed to generate any reports',
+        status: 'error'
+      }, { status: 500 });
+    }
+
+    // Format with Gemini
+    currentStep++;
+    updates.push({
+      status: 'formatting',
+      progress: (currentStep / totalSteps) * 100,
+      step: 'Formatting report with Gemini AI...'
+    });
+
+    const formattedHtml = await formatWithGemini(reports, storeNumber, storeName);
+
+    // Send email
+    currentStep++;
+    updates.push({
+      status: 'sending',
+      progress: (currentStep / totalSteps) * 100,
+      step: 'Sending email...'
+    });
+
+    const emailSubject = `Store #${storeNumber} Operations Report - ${new Date().toLocaleDateString()}`;
+    const emailResult = await sendEmail(email, emailSubject, formattedHtml);
+
+    if (emailResult.success) {
+      return NextResponse.json({
+        status: 'success',
+        progress: 100,
+        step: `Report sent successfully via ${emailResult.service}!`,
+        message: `Report has been sent to ${email}`
+      });
+    } else {
+      return NextResponse.json({
+        status: 'error',
+        error: emailResult.error || 'Failed to send email',
+        progress: 100
+      }, { status: 500 });
+    }
+
+  } catch (error) {
+    console.error('Report generation error:', error);
+    return NextResponse.json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'An error occurred while generating the report'
+    }, { status: 500 });
+  }
 }
