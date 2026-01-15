@@ -16,8 +16,7 @@ import {
   Sparkles,
   Navigation,
 } from 'lucide-react';
-import { useAppStore } from '@/stores/appStore';
-import { MARKET_396_STORES } from '@/data/stores';
+import { STORE_2593 } from '@/data/stores';
 
 interface LocalEvent {
   id: string;
@@ -58,11 +57,7 @@ const impactColors: Record<LocalEvent['impactLevel'], { bg: string; text: string
 };
 
 export default function LocalEvents() {
-  const { selectedStore } = useAppStore();
-  const store = selectedStore || MARKET_396_STORES[0];
-
-  // Use store ID for reliable change detection
-  const storeId = store.id;
+  const store = STORE_2593;
 
   const [events, setEvents] = useState<LocalEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +65,6 @@ export default function LocalEvents() {
   const [lastFetch, setLastFetch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch events function
   const fetchEvents = async (forceRefresh = false) => {
     try {
       if (forceRefresh) {
@@ -80,15 +74,8 @@ export default function LocalEvents() {
       }
       setError(null);
 
-      const params = new URLSearchParams({
-        lat: String(store.coordinates.lat),
-        lng: String(store.coordinates.lng),
-      });
-
-      // Add cache-busting and disable browser cache
-      const response = await fetch(`/api/events?${params}&_t=${Date.now()}`, {
+      const response = await fetch('/api/events', {
         method: forceRefresh ? 'POST' : 'GET',
-        cache: 'no-store',
       });
 
       const data: EventsResponse = await response.json();
@@ -108,11 +95,9 @@ export default function LocalEvents() {
     }
   };
 
-  // Refetch events when store changes (using storeId for reliable detection)
   useEffect(() => {
     fetchEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeId, store.coordinates.lat, store.coordinates.lng]);
+  }, []);
 
   const formatLastFetch = (dateStr: string) => {
     const date = new Date(dateStr);
