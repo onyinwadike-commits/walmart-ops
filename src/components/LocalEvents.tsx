@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Calendar,
   MapPin,
@@ -16,6 +16,8 @@ import {
   Sparkles,
   Navigation,
 } from 'lucide-react';
+import { useAppStore } from '@/stores/appStore';
+import { MARKET_396_STORES } from '@/data/stores';
 
 interface LocalEvent {
   id: string;
@@ -56,13 +58,16 @@ const impactColors: Record<LocalEvent['impactLevel'], { bg: string; text: string
 };
 
 export default function LocalEvents() {
+  const { selectedStore } = useAppStore();
+  const store = selectedStore || MARKET_396_STORES[0];
+
   const [events, setEvents] = useState<LocalEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastFetch, setLastFetch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchEvents = async (forceRefresh = false) => {
+  const fetchEvents = useCallback(async (forceRefresh = false) => {
     try {
       if (forceRefresh) {
         setIsRefreshing(true);
@@ -71,7 +76,12 @@ export default function LocalEvents() {
       }
       setError(null);
 
-      const response = await fetch('/api/events', {
+      const params = new URLSearchParams({
+        lat: String(store.coordinates.lat),
+        lng: String(store.coordinates.lng),
+      });
+
+      const response = await fetch(`/api/events?${params}`, {
         method: forceRefresh ? 'POST' : 'GET',
       });
 
@@ -90,11 +100,12 @@ export default function LocalEvents() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [store.coordinates.lat, store.coordinates.lng]);
 
+  // Refetch events when store changes
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const formatLastFetch = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -137,7 +148,7 @@ export default function LocalEvents() {
           </h2>
           {lastFetch && (
             <p className="text-xs text-dark-text-secondary mt-1">
-              Last updated: {formatLastFetch(lastFetch)} • Next refresh: 5:00 AM PT
+              Distances from Store #{store.number} • Last updated: {formatLastFetch(lastFetch)}
             </p>
           )}
         </div>

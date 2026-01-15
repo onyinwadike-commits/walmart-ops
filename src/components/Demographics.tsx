@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Users,
   DollarSign,
@@ -11,6 +11,8 @@ import {
   Lightbulb,
   RefreshCw,
 } from 'lucide-react';
+import { useAppStore } from '@/stores/appStore';
+import { MARKET_396_STORES } from '@/data/stores';
 
 interface DemographicData {
   population: string;
@@ -21,18 +23,27 @@ interface DemographicData {
   topEmployers: string[];
   keyInsight: string;
   lastUpdated: string;
+  zipCode: string;
+  city: string;
 }
 
 export default function Demographics() {
+  const { selectedStore } = useAppStore();
+  const store = selectedStore || MARKET_396_STORES[0];
+
   const [data, setData] = useState<DemographicData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDemographics = async () => {
+  const fetchDemographics = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/demographics');
+      const params = new URLSearchParams({
+        zip: store.zip,
+        city: store.city,
+      });
+      const response = await fetch(`/api/demographics?${params}`);
       if (!response.ok) throw new Error('Failed to fetch demographics');
       const result = await response.json();
       setData(result);
@@ -42,18 +53,19 @@ export default function Demographics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [store.zip, store.city]);
 
+  // Refetch demographics when store changes
   useEffect(() => {
     fetchDemographics();
-  }, []);
+  }, [fetchDemographics]);
 
   if (loading) {
     return (
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-dark-text">Market Demographics</h2>
-          <span className="text-sm text-dark-text-secondary">Las Vegas Metro Area</span>
+          <span className="text-sm text-dark-text-secondary">{store.city}, {store.state} ({store.zip})</span>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
@@ -96,7 +108,7 @@ export default function Demographics() {
             AI-Powered
           </span>
         </div>
-        <span className="text-sm text-dark-text-secondary">Las Vegas Metro Area (89123)</span>
+        <span className="text-sm text-dark-text-secondary">{store.city}, {store.state} ({store.zip})</span>
       </div>
 
       {/* Main Stats Grid */}

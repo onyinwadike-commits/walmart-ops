@@ -18,11 +18,11 @@ export interface LocalEvent {
   distanceMiles: number; // Distance from 2310 East Serene Ave, Las Vegas 89123
 }
 
-// Reference location: 2310 East Serene Ave, Las Vegas 89123
-const REFERENCE_LOCATION = {
+// Default reference location: Store 2593 - Serene Ave Supercenter
+const DEFAULT_REFERENCE_LOCATION = {
   lat: 36.0154,
   lng: -115.1186,
-  address: '2310 East Serene Ave, Las Vegas 89123'
+  address: '2310 E Serene Ave, Las Vegas, NV 89123'
 };
 
 // Known venue coordinates in Las Vegas
@@ -65,16 +65,16 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
   return Math.round(R * c * 10) / 10; // Round to 1 decimal place
 }
 
-// Get distance for a venue
-function getVenueDistance(venue: string): number {
+// Get distance for a venue from a reference location
+function getVenueDistance(venue: string, refLat: number, refLng: number): number {
   const venueLower = venue.toLowerCase();
 
   // Check for exact or partial venue match
   for (const [knownVenue, coords] of Object.entries(VENUE_COORDINATES)) {
     if (venueLower.includes(knownVenue) || knownVenue.includes(venueLower)) {
       return calculateDistance(
-        REFERENCE_LOCATION.lat,
-        REFERENCE_LOCATION.lng,
+        refLat,
+        refLng,
         coords.lat,
         coords.lng
       );
@@ -83,8 +83,8 @@ function getVenueDistance(venue: string): number {
 
   // Default to approximate Strip distance if venue not found
   return calculateDistance(
-    REFERENCE_LOCATION.lat,
-    REFERENCE_LOCATION.lng,
+    refLat,
+    refLng,
     36.1147, // Approximate center of Las Vegas Strip
     -115.1728
   );
@@ -125,7 +125,7 @@ function isCacheValid(): boolean {
 }
 
 // Parse Perplexity response into structured events
-function parseEventsFromResponse(content: string): LocalEvent[] {
+function parseEventsFromResponse(content: string, refLat: number, refLng: number): LocalEvent[] {
   const events: LocalEvent[] = [];
 
   // Try to extract JSON from the response
@@ -146,7 +146,7 @@ function parseEventsFromResponse(content: string): LocalEvent[] {
           description: event.description || '',
           impactLevel: determineImpactLevel(String(event.expectedAttendance || event.attendance || '')),
           nearbyStores: ['2059', '3455'], // Both stores in Market 396
-          distanceMiles: getVenueDistance(venue),
+          distanceMiles: getVenueDistance(venue, refLat, refLng),
         };
       });
     } catch {
@@ -174,7 +174,7 @@ function parseEventsFromResponse(content: string): LocalEvent[] {
           description: currentEvent.description || '',
           impactLevel: determineImpactLevel(currentEvent.expectedAttendance || ''),
           nearbyStores: ['2059', '3455'],
-          distanceMiles: getVenueDistance(venue),
+          distanceMiles: getVenueDistance(venue, refLat, refLng),
         });
       }
       currentEvent = { name: line.replace(/\*\*/g, '').replace(/^\d+\.\s*/, '').trim() };
@@ -203,7 +203,7 @@ function parseEventsFromResponse(content: string): LocalEvent[] {
       description: currentEvent.description || '',
       impactLevel: determineImpactLevel(currentEvent.expectedAttendance || ''),
       nearbyStores: ['2059', '3455'],
-      distanceMiles: getVenueDistance(venue),
+      distanceMiles: getVenueDistance(venue, refLat, refLng),
     });
   }
 
@@ -259,12 +259,12 @@ function determineImpactLevel(attendance: string): LocalEvent['impactLevel'] {
   return 'low';
 }
 
-async function fetchEventsFromPerplexity(): Promise<LocalEvent[]> {
+async function fetchEventsFromPerplexity(refLat: number, refLng: number): Promise<LocalEvent[]> {
   const apiKey = process.env.PERPLEXITY_API_KEY;
 
   if (!apiKey) {
     console.error('Perplexity API key not configured');
-    return getMockEvents();
+    return getMockEvents(refLat, refLng);
   }
 
   const today = new Date();
@@ -317,27 +317,27 @@ Return as a JSON array with this exact format:
 
     if (!response.ok) {
       console.error('Perplexity API error:', response.status, response.statusText);
-      return getMockEvents();
+      return getMockEvents(refLat, refLng);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
 
-    const events = parseEventsFromResponse(content);
+    const events = parseEventsFromResponse(content, refLat, refLng);
 
     if (events.length === 0) {
-      return getMockEvents();
+      return getMockEvents(refLat, refLng);
     }
 
     return events;
   } catch (error) {
     console.error('Error fetching events from Perplexity:', error);
-    return getMockEvents();
+    return getMockEvents(refLat, refLng);
   }
 }
 
 // Mock events for fallback
-function getMockEvents(): LocalEvent[] {
+function getMockEvents(refLat: number, refLng: number): LocalEvent[] {
   const today = new Date();
 
   return [
@@ -352,7 +352,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'NFL Regular Season Game at Allegiant Stadium',
       impactLevel: 'high',
       nearbyStores: ['2059', '3455'],
-      distanceMiles: getVenueDistance('Allegiant Stadium'),
+      distanceMiles: getVenueDistance('Allegiant Stadium', refLat, refLng),
     },
     {
       id: 'mock-2',
@@ -365,7 +365,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'NHL Hockey - Vegas Golden Knights home game',
       impactLevel: 'medium',
       nearbyStores: ['2059', '3455'],
-      distanceMiles: getVenueDistance('T-Mobile Arena'),
+      distanceMiles: getVenueDistance('T-Mobile Arena', refLat, refLng),
     },
     {
       id: 'mock-3',
@@ -378,7 +378,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'Consumer Electronics Show - World\'s largest tech trade show',
       impactLevel: 'high',
       nearbyStores: ['2059', '3455'],
-      distanceMiles: getVenueDistance('Las Vegas Convention Center'),
+      distanceMiles: getVenueDistance('Las Vegas Convention Center', refLat, refLng),
     },
     {
       id: 'mock-4',
@@ -391,7 +391,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'U2 Residency at The Sphere',
       impactLevel: 'medium',
       nearbyStores: ['2059', '3455'],
-      distanceMiles: getVenueDistance('Sphere Las Vegas'),
+      distanceMiles: getVenueDistance('Sphere Las Vegas', refLat, refLng),
     },
     {
       id: 'mock-5',
@@ -404,30 +404,42 @@ function getMockEvents(): LocalEvent[] {
       description: 'PBR World Finals Championship Round',
       impactLevel: 'medium',
       nearbyStores: ['2059', '3455'],
-      distanceMiles: getVenueDistance('T-Mobile Arena'),
+      distanceMiles: getVenueDistance('T-Mobile Arena', refLat, refLng),
     },
   ];
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Check if cache is valid
+    const { searchParams } = new URL(request.url);
+    const lat = parseFloat(searchParams.get('lat') || String(DEFAULT_REFERENCE_LOCATION.lat));
+    const lng = parseFloat(searchParams.get('lng') || String(DEFAULT_REFERENCE_LOCATION.lng));
+
+    // Note: We cache events globally but recalculate distances per request
+    // This is more efficient than making API calls for each store
     if (isCacheValid() && eventsCache) {
+      // Recalculate distances for the specific store location
+      const eventsWithDistances = eventsCache.events.map(event => ({
+        ...event,
+        distanceMiles: getVenueDistance(event.venue, lat, lng),
+      }));
+
       return NextResponse.json({
         success: true,
-        data: eventsCache.events,
+        data: eventsWithDistances,
         cached: true,
         lastFetch: eventsCache.lastFetch,
         nextRefresh: eventsCache.nextRefresh,
+        storeLocation: { lat, lng },
       });
     }
 
     // Fetch fresh events
-    const events = await fetchEventsFromPerplexity();
+    const events = await fetchEventsFromPerplexity(lat, lng);
     const now = new Date();
     const nextRefresh = getNext5amPacific();
 
-    // Update cache
+    // Update cache (store with default distances, recalculate per request)
     eventsCache = {
       events,
       lastFetch: now.toISOString(),
@@ -440,12 +452,17 @@ export async function GET() {
       cached: false,
       lastFetch: now.toISOString(),
       nextRefresh: nextRefresh.toISOString(),
+      storeLocation: { lat, lng },
     });
   } catch (error) {
     console.error('Events API error:', error);
 
+    const { searchParams } = new URL(request.url);
+    const lat = parseFloat(searchParams.get('lat') || String(DEFAULT_REFERENCE_LOCATION.lat));
+    const lng = parseFloat(searchParams.get('lng') || String(DEFAULT_REFERENCE_LOCATION.lng));
+
     // Return mock events on error
-    const mockEvents = getMockEvents();
+    const mockEvents = getMockEvents(lat, lng);
     return NextResponse.json({
       success: true,
       data: mockEvents,
@@ -453,14 +470,19 @@ export async function GET() {
       error: 'Using fallback data',
       lastFetch: new Date().toISOString(),
       nextRefresh: getNext5amPacific().toISOString(),
+      storeLocation: { lat, lng },
     });
   }
 }
 
 // Force refresh endpoint
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const events = await fetchEventsFromPerplexity();
+    const { searchParams } = new URL(request.url);
+    const lat = parseFloat(searchParams.get('lat') || String(DEFAULT_REFERENCE_LOCATION.lat));
+    const lng = parseFloat(searchParams.get('lng') || String(DEFAULT_REFERENCE_LOCATION.lng));
+
+    const events = await fetchEventsFromPerplexity(lat, lng);
     const now = new Date();
     const nextRefresh = getNext5amPacific();
 
@@ -477,6 +499,7 @@ export async function POST() {
       data: events,
       lastFetch: now.toISOString(),
       nextRefresh: nextRefresh.toISOString(),
+      storeLocation: { lat, lng },
     });
   } catch (error) {
     console.error('Events API POST error:', error);

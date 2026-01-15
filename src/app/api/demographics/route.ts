@@ -9,19 +9,20 @@ export interface DemographicData {
   topEmployers: string[];
   keyInsight: string;
   lastUpdated: string;
+  zipCode: string;
+  city: string;
 }
 
-// Cache demographics data (refresh every 24 hours)
-let cachedData: DemographicData | null = null;
-let cacheTimestamp: number = 0;
+// Cache demographics data per zip code (refresh every 24 hours)
+const cacheMap: Map<string, { data: DemographicData; timestamp: number }> = new Map();
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-async function fetchDemographicsFromPerplexity(): Promise<DemographicData> {
+async function fetchDemographicsFromPerplexity(zipCode: string, city: string): Promise<DemographicData> {
   const apiKey = process.env.PERPLEXITY_API_KEY;
 
   if (!apiKey) {
     console.log('No Perplexity API key found, using mock data');
-    return getMockDemographics();
+    return getMockDemographics(zipCode, city);
   }
 
   try {
@@ -40,14 +41,14 @@ async function fetchDemographicsFromPerplexity(): Promise<DemographicData> {
           },
           {
             role: 'user',
-            content: `Provide current demographic data for the Las Vegas metropolitan area (Clark County, Nevada) near zip code 89123. Include:
-1. Total population (format: X.X million or XXX,XXX)
+            content: `Provide current demographic data for ${city}, Nevada near zip code ${zipCode}. Include:
+1. Total population for the immediate area/zip code (format: XX,XXX or X.X million)
 2. Median household income (format: $XX,XXX)
 3. Median age (format: XX years)
-4. Number of households (format: X.X million or XXX,XXX)
+4. Number of households (format: XX,XXX or X.X million)
 5. Population growth rate (format: X.X% per year)
 6. Top 3 major employers in the area
-7. One key retail/consumer insight about this demographic
+7. One key retail/consumer insight about this demographic that would help a Walmart store manager
 
 Format your response exactly like this:
 POPULATION: [value]
@@ -71,14 +72,14 @@ KEY_INSIGHT: [one sentence insight]`
     const data = await response.json();
     const content = data.choices[0]?.message?.content || '';
 
-    return parseDemographicResponse(content);
+    return parseDemographicResponse(content, zipCode, city);
   } catch (error) {
     console.error('Error fetching demographics from Perplexity:', error);
-    return getMockDemographics();
+    return getMockDemographics(zipCode, city);
   }
 }
 
-function parseDemographicResponse(content: string): DemographicData {
+function parseDemographicResponse(content: string, zipCode: string, city: string): DemographicData {
   const lines = content.split('\n');
   const data: Partial<DemographicData> = {};
 
@@ -111,40 +112,79 @@ function parseDemographicResponse(content: string): DemographicData {
     topEmployers: data.topEmployers || ['MGM Resorts', 'Caesars Entertainment', 'Clark County School District'],
     keyInsight: data.keyInsight || 'High tourism economy drives strong retail demand year-round',
     lastUpdated: new Date().toISOString(),
+    zipCode,
+    city,
   };
 }
 
-function getMockDemographics(): DemographicData {
-  return {
+// Mock data varies based on location for realism
+const LOCATION_MOCK_DATA: Record<string, Partial<DemographicData>> = {
+  'Las Vegas': {
     population: '2.3 million',
     medianIncome: '$62,500',
-    medianAge: '38 years',
     households: '855,000',
     growthRate: '2.1%',
     topEmployers: ['MGM Resorts International', 'Caesars Entertainment', 'Clark County School District'],
-    keyInsight: 'Strong population growth and tourism economy drive consistent retail demand',
+    keyInsight: 'Strong tourism economy drives consistent retail demand year-round',
+  },
+  'Henderson': {
+    population: '340,000',
+    medianIncome: '$72,500',
+    households: '125,000',
+    growthRate: '2.8%',
+    topEmployers: ['Henderson Hospital', 'Walmart', 'City of Henderson'],
+    keyInsight: 'Growing family-oriented community with higher household incomes and suburban shopping patterns',
+  },
+  'Pahrump': {
+    population: '45,000',
+    medianIncome: '$48,500',
+    households: '18,500',
+    growthRate: '1.5%',
+    topEmployers: ['Valley Electric Association', 'Nye County School District', 'Walmart'],
+    keyInsight: 'Rural community with limited retail options making this store the primary shopping destination',
+  },
+};
+
+function getMockDemographics(zipCode: string, city: string): DemographicData {
+  const locationData = LOCATION_MOCK_DATA[city] || LOCATION_MOCK_DATA['Las Vegas'];
+
+  return {
+    population: locationData.population || '2.3 million',
+    medianIncome: locationData.medianIncome || '$62,500',
+    medianAge: '38 years',
+    households: locationData.households || '855,000',
+    growthRate: locationData.growthRate || '2.1%',
+    topEmployers: locationData.topEmployers || ['MGM Resorts International', 'Caesars Entertainment', 'Clark County School District'],
+    keyInsight: locationData.keyInsight || 'Strong population growth and tourism economy drive consistent retail demand',
     lastUpdated: new Date().toISOString(),
+    zipCode,
+    city,
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const zipCode = searchParams.get('zip') || '89123';
+    const city = searchParams.get('city') || 'Las Vegas';
+    const cacheKey = `${zipCode}-${city}`;
+
     const now = Date.now();
 
-    // Check if we have valid cached data
-    if (cachedData && (now - cacheTimestamp) < CACHE_DURATION) {
+    // Check if we have valid cached data for this location
+    const cached = cacheMap.get(cacheKey);
+    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
       return NextResponse.json({
-        ...cachedData,
+        ...cached.data,
         cached: true,
       });
     }
 
-    // Fetch fresh data
-    const demographics = await fetchDemographicsFromPerplexity();
+    // Fetch fresh data for this location
+    const demographics = await fetchDemographicsFromPerplexity(zipCode, city);
 
-    // Update cache
-    cachedData = demographics;
-    cacheTimestamp = now;
+    // Update cache for this location
+    cacheMap.set(cacheKey, { data: demographics, timestamp: now });
 
     return NextResponse.json({
       ...demographics,
@@ -152,6 +192,9 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Demographics API error:', error);
-    return NextResponse.json(getMockDemographics());
+    const { searchParams } = new URL(request.url);
+    const zipCode = searchParams.get('zip') || '89123';
+    const city = searchParams.get('city') || 'Las Vegas';
+    return NextResponse.json(getMockDemographics(zipCode, city));
   }
 }
