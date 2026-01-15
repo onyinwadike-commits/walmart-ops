@@ -15,6 +15,79 @@ export interface LocalEvent {
   description: string;
   impactLevel: 'high' | 'medium' | 'low';
   nearbyStores: string[];
+  distanceMiles: number; // Distance from 2310 East Serene Ave, Las Vegas 89123
+}
+
+// Reference location: 2310 East Serene Ave, Las Vegas 89123
+const REFERENCE_LOCATION = {
+  lat: 36.0154,
+  lng: -115.1186,
+  address: '2310 East Serene Ave, Las Vegas 89123'
+};
+
+// Known venue coordinates in Las Vegas
+const VENUE_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  'allegiant stadium': { lat: 36.0909, lng: -115.1833 },
+  't-mobile arena': { lat: 36.1028, lng: -115.1783 },
+  'las vegas convention center': { lat: 36.1312, lng: -115.1522 },
+  'sphere las vegas': { lat: 36.1203, lng: -115.1658 },
+  'sphere': { lat: 36.1203, lng: -115.1658 },
+  'mgm grand': { lat: 36.1025, lng: -115.1702 },
+  'mgm grand garden arena': { lat: 36.1025, lng: -115.1702 },
+  'resorts world': { lat: 36.1243, lng: -115.1683 },
+  'resorts world theatre': { lat: 36.1243, lng: -115.1683 },
+  'mandalay bay': { lat: 36.0920, lng: -115.1760 },
+  'mandalay bay events center': { lat: 36.0920, lng: -115.1760 },
+  'thomas & mack center': { lat: 36.1094, lng: -115.1417 },
+  'orleans arena': { lat: 36.1025, lng: -115.2067 },
+  'sam boyd stadium': { lat: 36.0617, lng: -115.0508 },
+  'las vegas motor speedway': { lat: 36.2719, lng: -115.0103 },
+  'downtown las vegas events center': { lat: 36.1711, lng: -115.1419 },
+  'the venetian': { lat: 36.1217, lng: -115.1697 },
+  'caesars palace': { lat: 36.1162, lng: -115.1745 },
+  'park mgm': { lat: 36.1028, lng: -115.1754 },
+  'michelob ultra arena': { lat: 36.0920, lng: -115.1760 },
+  'dolby live': { lat: 36.1025, lng: -115.1702 },
+  'bakkt theater': { lat: 36.1058, lng: -115.1717 },
+  'fremont street': { lat: 36.1699, lng: -115.1426 },
+};
+
+// Calculate distance between two coordinates using Haversine formula
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+}
+
+// Get distance for a venue
+function getVenueDistance(venue: string): number {
+  const venueLower = venue.toLowerCase();
+
+  // Check for exact or partial venue match
+  for (const [knownVenue, coords] of Object.entries(VENUE_COORDINATES)) {
+    if (venueLower.includes(knownVenue) || knownVenue.includes(venueLower)) {
+      return calculateDistance(
+        REFERENCE_LOCATION.lat,
+        REFERENCE_LOCATION.lng,
+        coords.lat,
+        coords.lng
+      );
+    }
+  }
+
+  // Default to approximate Strip distance if venue not found
+  return calculateDistance(
+    REFERENCE_LOCATION.lat,
+    REFERENCE_LOCATION.lng,
+    36.1147, // Approximate center of Las Vegas Strip
+    -115.1728
+  );
 }
 
 interface CachedEvents {
@@ -60,18 +133,22 @@ function parseEventsFromResponse(content: string): LocalEvent[] {
   if (jsonMatch) {
     try {
       const parsed = JSON.parse(jsonMatch[0]);
-      return parsed.map((event: Record<string, unknown>, index: number) => ({
-        id: `event-${Date.now()}-${index}`,
-        name: event.name || 'Unknown Event',
-        venue: event.venue || 'Las Vegas',
-        date: event.date || 'TBD',
-        time: event.time || 'TBD',
-        expectedAttendance: event.expectedAttendance || event.attendance || 'Unknown',
-        category: categorizeEvent(String(event.name || ''), String(event.venue || '')),
-        description: event.description || '',
-        impactLevel: determineImpactLevel(String(event.expectedAttendance || event.attendance || '')),
-        nearbyStores: ['2059', '3455'], // Both stores in Market 396
-      }));
+      return parsed.map((event: Record<string, unknown>, index: number) => {
+        const venue = String(event.venue || 'Las Vegas');
+        return {
+          id: `event-${Date.now()}-${index}`,
+          name: event.name || 'Unknown Event',
+          venue,
+          date: event.date || 'TBD',
+          time: event.time || 'TBD',
+          expectedAttendance: event.expectedAttendance || event.attendance || 'Unknown',
+          category: categorizeEvent(String(event.name || ''), venue),
+          description: event.description || '',
+          impactLevel: determineImpactLevel(String(event.expectedAttendance || event.attendance || '')),
+          nearbyStores: ['2059', '3455'], // Both stores in Market 396
+          distanceMiles: getVenueDistance(venue),
+        };
+      });
     } catch {
       // If JSON parsing fails, continue to text parsing
     }
@@ -85,17 +162,19 @@ function parseEventsFromResponse(content: string): LocalEvent[] {
     if (line.includes('**') || line.match(/^\d+\./)) {
       // New event detected
       if (currentEvent.name) {
+        const venue = currentEvent.venue || 'Las Vegas';
         events.push({
           id: `event-${Date.now()}-${events.length}`,
           name: currentEvent.name || 'Unknown Event',
-          venue: currentEvent.venue || 'Las Vegas',
+          venue,
           date: currentEvent.date || 'TBD',
           time: currentEvent.time || 'TBD',
           expectedAttendance: currentEvent.expectedAttendance || 'Unknown',
-          category: categorizeEvent(currentEvent.name || '', currentEvent.venue || ''),
+          category: categorizeEvent(currentEvent.name || '', venue),
           description: currentEvent.description || '',
           impactLevel: determineImpactLevel(currentEvent.expectedAttendance || ''),
           nearbyStores: ['2059', '3455'],
+          distanceMiles: getVenueDistance(venue),
         });
       }
       currentEvent = { name: line.replace(/\*\*/g, '').replace(/^\d+\.\s*/, '').trim() };
@@ -112,17 +191,19 @@ function parseEventsFromResponse(content: string): LocalEvent[] {
 
   // Add last event
   if (currentEvent.name) {
+    const venue = currentEvent.venue || 'Las Vegas';
     events.push({
       id: `event-${Date.now()}-${events.length}`,
       name: currentEvent.name || 'Unknown Event',
-      venue: currentEvent.venue || 'Las Vegas',
+      venue,
       date: currentEvent.date || 'TBD',
       time: currentEvent.time || 'TBD',
       expectedAttendance: currentEvent.expectedAttendance || 'Unknown',
-      category: categorizeEvent(currentEvent.name || '', currentEvent.venue || ''),
+      category: categorizeEvent(currentEvent.name || '', venue),
       description: currentEvent.description || '',
       impactLevel: determineImpactLevel(currentEvent.expectedAttendance || ''),
       nearbyStores: ['2059', '3455'],
+      distanceMiles: getVenueDistance(venue),
     });
   }
 
@@ -271,6 +352,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'NFL Regular Season Game at Allegiant Stadium',
       impactLevel: 'high',
       nearbyStores: ['2059', '3455'],
+      distanceMiles: getVenueDistance('Allegiant Stadium'),
     },
     {
       id: 'mock-2',
@@ -283,6 +365,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'NHL Hockey - Vegas Golden Knights home game',
       impactLevel: 'medium',
       nearbyStores: ['2059', '3455'],
+      distanceMiles: getVenueDistance('T-Mobile Arena'),
     },
     {
       id: 'mock-3',
@@ -295,6 +378,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'Consumer Electronics Show - World\'s largest tech trade show',
       impactLevel: 'high',
       nearbyStores: ['2059', '3455'],
+      distanceMiles: getVenueDistance('Las Vegas Convention Center'),
     },
     {
       id: 'mock-4',
@@ -307,6 +391,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'U2 Residency at The Sphere',
       impactLevel: 'medium',
       nearbyStores: ['2059', '3455'],
+      distanceMiles: getVenueDistance('Sphere Las Vegas'),
     },
     {
       id: 'mock-5',
@@ -319,6 +404,7 @@ function getMockEvents(): LocalEvent[] {
       description: 'PBR World Finals Championship Round',
       impactLevel: 'medium',
       nearbyStores: ['2059', '3455'],
+      distanceMiles: getVenueDistance('T-Mobile Arena'),
     },
   ];
 }

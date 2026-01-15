@@ -14,6 +14,7 @@ import {
   AlertTriangle,
   Loader2,
   Sparkles,
+  Navigation,
 } from 'lucide-react';
 
 interface LocalEvent {
@@ -27,6 +28,7 @@ interface LocalEvent {
   description: string;
   impactLevel: 'high' | 'medium' | 'low';
   nearbyStores: string[];
+  distanceMiles: number;
 }
 
 interface EventsResponse {
@@ -195,10 +197,16 @@ export default function LocalEvents() {
                 {event.name}
               </h3>
 
-              {/* Venue */}
-              <div className="flex items-center gap-2 text-sm text-dark-text-secondary mb-3">
-                <MapPin size={14} />
-                <span className="truncate">{event.venue}</span>
+              {/* Venue & Distance */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-sm text-dark-text-secondary">
+                  <MapPin size={14} />
+                  <span className="truncate">{event.venue}</span>
+                </div>
+                <span className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 whitespace-nowrap">
+                  <Navigation size={10} />
+                  {event.distanceMiles} mi away
+                </span>
               </div>
 
               {/* Date & Time */}
