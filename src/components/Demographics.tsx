@@ -7,11 +7,19 @@ import {
   Calendar,
   Home,
   TrendingUp,
-  Briefcase,
+  PieChart,
   Lightbulb,
   RefreshCw,
 } from 'lucide-react';
 import { STORE_2593 } from '@/data/stores';
+
+interface RaceDemographics {
+  white: number;
+  hispanic: number;
+  black: number;
+  asian: number;
+  other: number;
+}
 
 interface DemographicData {
   population: string;
@@ -19,10 +27,18 @@ interface DemographicData {
   medianAge: string;
   households: string;
   growthRate: string;
-  topEmployers: string[];
+  raceDemographics: RaceDemographics;
   keyInsight: string;
   lastUpdated: string;
 }
+
+const raceColors = {
+  white: { bg: 'bg-blue-500', label: 'White' },
+  hispanic: { bg: 'bg-orange-500', label: 'Hispanic' },
+  black: { bg: 'bg-purple-500', label: 'Black' },
+  asian: { bg: 'bg-green-500', label: 'Asian' },
+  other: { bg: 'bg-gray-500', label: 'Other' },
+};
 
 export default function Demographics() {
   const store = STORE_2593;
@@ -162,20 +178,32 @@ export default function Demographics() {
           </div>
         </div>
 
-        {/* Top Employers */}
+        {/* Race Demographics */}
         <div className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Briefcase size={16} className="text-orange-400" />
-            <span className="text-sm font-medium text-dark-text">Top Employers</span>
+          <div className="flex items-center gap-2 mb-3">
+            <PieChart size={16} className="text-blue-400" />
+            <span className="text-sm font-medium text-dark-text">Race Demographics</span>
           </div>
-          <div className="flex flex-wrap gap-1">
-            {data.topEmployers.map((employer, index) => (
-              <span
-                key={index}
-                className="text-[10px] px-2 py-1 rounded-full bg-orange-500/10 text-orange-300"
-              >
-                {employer}
-              </span>
+          {/* Stacked Bar */}
+          <div className="flex h-3 rounded-full overflow-hidden mb-3">
+            {Object.entries(data.raceDemographics).map(([race, percentage]) => (
+              <div
+                key={race}
+                className={`${raceColors[race as keyof RaceDemographics].bg}`}
+                style={{ width: `${percentage}%` }}
+                title={`${raceColors[race as keyof RaceDemographics].label}: ${percentage}%`}
+              />
+            ))}
+          </div>
+          {/* Legend */}
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {Object.entries(data.raceDemographics).map(([race, percentage]) => (
+              <div key={race} className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${raceColors[race as keyof RaceDemographics].bg}`} />
+                <span className="text-[10px] text-dark-text-secondary">
+                  {raceColors[race as keyof RaceDemographics].label} {percentage}%
+                </span>
+              </div>
             ))}
           </div>
         </div>
