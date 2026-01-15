@@ -1,6 +1,6 @@
 // Weather API Endpoint
 // Uses Perplexity API to fetch current weather for Las Vegas
-// Caches results for 1 hour
+// Caches results for 24 hours
 
 import { NextResponse } from 'next/server';
 
@@ -26,8 +26,8 @@ interface CachedWeather {
 // In-memory cache
 let weatherCache: CachedWeather | null = null;
 
-// Cache duration: 1 hour
-const CACHE_DURATION_MS = 60 * 60 * 1000;
+// Cache duration: 24 hours
+const CACHE_DURATION_MS = 24 * 60 * 60 * 1000;
 
 function isCacheValid(): boolean {
   if (!weatherCache) return false;
