@@ -16,26 +16,53 @@ import {
   AlertTriangle,
   MessageCircle,
   Share2,
+  Award,
 } from 'lucide-react';
 import { Header, LocalEvents, Demographics } from '@/components';
+import QuickActionSection, { ReportSection, SectionId } from '@/components/QuickActionSection';
 import { useAppStore } from '@/stores/appStore';
 import { MARKET_396_STORES } from '@/data/stores';
+
+// Quick Action configuration
+const QUICK_ACTIONS: {
+  id: SectionId;
+  title: string;
+  icon: typeof FileText;
+  color: string;
+}[] = [
+  { id: 'A', title: 'Executive Summary', icon: FileText, color: '#3B82F6' },
+  { id: 'B', title: 'Prioritized Action Plan', icon: ListChecks, color: '#22C55E' },
+  { id: 'C', title: 'Competitive Outperform', icon: TrendingUp, color: '#A855F7' },
+  { id: 'D', title: 'E-Commerce Benchmark', icon: ShoppingCart, color: '#06B6D4' },
+  { id: 'E', title: 'Predictive Stress Map', icon: Activity, color: '#F97316' },
+  { id: 'F', title: 'Dept Checklists', icon: ClipboardCheck, color: '#14B8A6' },
+  { id: 'G', title: 'Risk Watchlist', icon: AlertTriangle, color: '#F59E0B' },
+  { id: 'H', title: 'End-of-Day Scorecard', icon: Award, color: '#84CC16' },
+  { id: 'I', title: 'Communication Aids', icon: MessageCircle, color: '#6366F1' },
+  { id: 'J', title: 'Social Media Plan', icon: Share2, color: '#EC4899' },
+];
 
 export default function Dashboard() {
   const router = useRouter();
   const { selectedStore } = useAppStore();
 
   const [isReportHovered, setIsReportHovered] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<SectionId | null>(null);
 
   // Navigate to report page for selected store
   const handleGenerateReport = () => {
     if (!selectedStore) {
-      // If no store selected, use first store
       router.push(`/report/${MARKET_396_STORES[0].id}`);
     } else {
       router.push(`/report/${selectedStore.id}`);
     }
   };
+
+  const handleSectionToggle = (sectionId: SectionId) => {
+    setExpandedSection(expandedSection === sectionId ? null : sectionId);
+  };
+
+  const store = selectedStore || MARKET_396_STORES[0];
 
   return (
     <div className="min-h-screen bg-dark-bg">
@@ -51,7 +78,7 @@ export default function Dashboard() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold text-dark-text">
-                  Store {selectedStore?.number || MARKET_396_STORES[0].number} | Market 396 Dashboard
+                  Store {store.number} | Market 396 Dashboard
                 </h1>
                 <p className="text-dark-text-secondary mt-1">
                   Real-Time Operations Insights for Store Leaders
@@ -97,146 +124,91 @@ export default function Dashboard() {
           {/* Market Demographics - AI Powered */}
           <Demographics />
 
-          {/* Quick Actions */}
+          {/* Quick Actions - Dynamic Expandable Section */}
           <section className="mb-8">
-            <h2 className="text-lg font-semibold text-dark-text mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-              {/* Executive Summary */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-walmart-blue/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-walmart-blue/20 group-hover:bg-walmart-blue/30 transition-colors">
-                  <FileText size={20} className="text-walmart-blue" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Executive Summary
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-dark-text flex items-center gap-2">
+                  Quick Actions
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-walmart-blue/20 text-walmart-blue font-medium">
+                    AI-Powered
                   </span>
-                </div>
-              </button>
+                </h2>
+                <p className="text-xs text-dark-text-secondary mt-1">
+                  Click any section to expand real-time AI insights
+                </p>
+              </div>
+              {expandedSection && (
+                <button
+                  onClick={() => setExpandedSection(null)}
+                  className="text-xs text-dark-text-secondary hover:text-white transition-colors"
+                >
+                  Collapse All
+                </button>
+              )}
+            </div>
 
-              {/* Prioritized Action Plan */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-green-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-green-500/20 group-hover:bg-green-500/30 transition-colors">
-                  <ListChecks size={20} className="text-green-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Prioritized Action Plan
-                  </span>
-                </div>
-              </button>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-3">
+              {QUICK_ACTIONS.map((action) => {
+                const Icon = action.icon;
+                const isExpanded = expandedSection === action.id;
 
-              {/* Competitive Outperform Plan */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-purple-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
-                  <TrendingUp size={20} className="text-purple-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Competitive Outperform
-                  </span>
-                </div>
-              </button>
+                return (
+                  <QuickActionSection
+                    key={action.id}
+                    id={action.id}
+                    title={action.title}
+                    icon={<Icon size={20} style={{ color: action.color }} />}
+                    color={action.color}
+                    isExpanded={isExpanded}
+                    onToggle={() => handleSectionToggle(action.id)}
+                  >
+                    {isExpanded && (
+                      <ReportSection sectionId={action.id} storeNumber={store.number} />
+                    )}
+                  </QuickActionSection>
+                );
+              })}
+            </div>
 
-              {/* E-Commerce Benchmark */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-cyan-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-cyan-500/20 group-hover:bg-cyan-500/30 transition-colors">
-                  <ShoppingCart size={20} className="text-cyan-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    E-Commerce Benchmark
-                  </span>
-                </div>
-              </button>
-
-              {/* Predictive Stress Map */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-orange-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-500/20 group-hover:bg-orange-500/30 transition-colors">
-                  <Activity size={20} className="text-orange-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Predictive Stress Map
-                  </span>
-                </div>
-              </button>
-
-              {/* Department Checklists */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-teal-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-teal-500/20 group-hover:bg-teal-500/30 transition-colors">
-                  <ClipboardCheck size={20} className="text-teal-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Dept Checklists
-                  </span>
-                </div>
-              </button>
-
-              {/* Risk Watchlist */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-amber-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/20 group-hover:bg-amber-500/30 transition-colors">
-                  <AlertTriangle size={20} className="text-amber-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Risk Watchlist
-                  </span>
-                </div>
-              </button>
-
-              {/* Communication Aids */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-indigo-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/20 group-hover:bg-indigo-500/30 transition-colors">
-                  <MessageCircle size={20} className="text-indigo-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Communication Aids
-                  </span>
-                </div>
-              </button>
-
-              {/* Social Media Weekly Plan */}
-              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-pink-500/50 transition-all text-center">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-pink-500/20 group-hover:bg-pink-500/30 transition-colors">
-                  <Share2 size={20} className="text-pink-400" />
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Social Media Plan
-                  </span>
-                </div>
-              </button>
-
+            {/* Special Action Buttons - Navigate to full pages */}
+            <div className="grid grid-cols-2 gap-3 mt-4">
               {/* Amazon Warfare */}
               <button
                 onClick={() => router.push('/amazon-warfare')}
-                className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-red-500/50 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all text-center"
+                className="glass-card p-4 flex items-center gap-4 group hover:ring-1 hover:ring-red-500/50 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all"
               >
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 group-hover:from-red-500/30 group-hover:to-orange-500/30 transition-colors">
-                  <Zap size={20} className="text-red-400" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 group-hover:from-red-500/30 group-hover:to-orange-500/30 transition-colors">
+                  <Zap size={24} className="text-red-400" />
                 </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Amazon Warfare
+                <div className="text-left">
+                  <span className="text-sm font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Amazon Warfare Mode
+                  </span>
+                  <span className="text-xs text-dark-text-secondary">
+                    Real-time competitive intelligence
                   </span>
                 </div>
+                <ArrowRight size={20} className="text-dark-text-secondary ml-auto group-hover:translate-x-1 transition-transform" />
               </button>
 
-              {/* Visual Merch */}
+              {/* Visual Merchandising */}
               <button
                 onClick={() => router.push('/visual-merchandising')}
-                className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-spark-yellow/50 transition-all text-center"
+                className="glass-card p-4 flex items-center gap-4 group hover:ring-1 hover:ring-spark-yellow/50 transition-all"
               >
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-spark-yellow/20 group-hover:bg-spark-yellow/30 transition-colors">
-                  <Target size={20} className="text-spark-yellow" />
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-spark-yellow/20 group-hover:bg-spark-yellow/30 transition-colors">
+                  <Target size={24} className="text-spark-yellow" />
                 </div>
-                <div>
-                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
-                    Visual Merch
+                <div className="text-left">
+                  <span className="text-sm font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Visual Merchandising AI
+                  </span>
+                  <span className="text-xs text-dark-text-secondary">
+                    Planogram analysis & optimization
                   </span>
                 </div>
+                <ArrowRight size={20} className="text-dark-text-secondary ml-auto group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </section>

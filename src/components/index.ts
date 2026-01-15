@@ -9,6 +9,7 @@ export { default as SectionTabs } from './SectionTabs';
 export { default as MetricCard } from './MetricCard';
 export { default as LocalEvents } from './LocalEvents';
 export { default as Demographics } from './Demographics';
+export { default as QuickActionSection, ReportSection as QuickActionReportSection } from './QuickActionSection';
 
 // Phase 2: Report Components
 export {
