@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Header, LocalEvents, Demographics } from '@/components';
 import QuickActionSection, { ReportSection, SectionId } from '@/components/QuickActionSection';
+import ReportEmailModal from '@/components/ReportEmailModal';
 import { useAppStore } from '@/stores/appStore';
 import { MARKET_396_STORES } from '@/data/stores';
 
@@ -48,14 +49,11 @@ export default function Dashboard() {
 
   const [isReportHovered, setIsReportHovered] = useState(false);
   const [expandedSection, setExpandedSection] = useState<SectionId | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
-  // Navigate to report page for selected store
+  // Open the report modal
   const handleGenerateReport = () => {
-    if (!selectedStore) {
-      router.push(`/report/${MARKET_396_STORES[0].id}`);
-    } else {
-      router.push(`/report/${selectedStore.id}`);
-    }
+    setIsReportModalOpen(true);
   };
 
   const handleSectionToggle = (sectionId: SectionId) => {
@@ -217,6 +215,14 @@ export default function Dashboard() {
           <LocalEvents />
         </div>
       </main>
+
+      {/* Report Email Modal */}
+      <ReportEmailModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        storeNumber={store.number}
+        storeName={store.name}
+      />
     </div>
   );
 }
