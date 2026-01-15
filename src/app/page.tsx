@@ -7,11 +7,18 @@ import {
   ArrowRight,
   Zap,
   Target,
-  Clock,
-  CheckCircle2,
   Building2,
   Users,
   MapPin,
+  FileText,
+  ListChecks,
+  TrendingUp,
+  ShoppingCart,
+  Activity,
+  ClipboardCheck,
+  AlertTriangle,
+  MessageCircle,
+  Share2,
 } from 'lucide-react';
 import { Header, Sidebar, SectionTabs, LocalEvents } from '@/components';
 import { useAppStore } from '@/stores/appStore';
@@ -194,55 +201,142 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-dark-text mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+              {/* Executive Summary */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-walmart-blue/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-walmart-blue/20 group-hover:bg-walmart-blue/30 transition-colors">
+                  <FileText size={20} className="text-walmart-blue" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Executive Summary
+                  </span>
+                </div>
+              </button>
+
+              {/* Prioritized Action Plan */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-green-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-green-500/20 group-hover:bg-green-500/30 transition-colors">
+                  <ListChecks size={20} className="text-green-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Prioritized Action Plan
+                  </span>
+                </div>
+              </button>
+
+              {/* Competitive Outperform Plan */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-purple-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
+                  <TrendingUp size={20} className="text-purple-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Competitive Outperform
+                  </span>
+                </div>
+              </button>
+
+              {/* E-Commerce Benchmark */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-cyan-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-cyan-500/20 group-hover:bg-cyan-500/30 transition-colors">
+                  <ShoppingCart size={20} className="text-cyan-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    E-Commerce Benchmark
+                  </span>
+                </div>
+              </button>
+
+              {/* Predictive Stress Map */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-orange-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-500/20 group-hover:bg-orange-500/30 transition-colors">
+                  <Activity size={20} className="text-orange-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Predictive Stress Map
+                  </span>
+                </div>
+              </button>
+
+              {/* Department Checklists */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-teal-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-teal-500/20 group-hover:bg-teal-500/30 transition-colors">
+                  <ClipboardCheck size={20} className="text-teal-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Dept Checklists
+                  </span>
+                </div>
+              </button>
+
+              {/* Risk Watchlist */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-amber-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/20 group-hover:bg-amber-500/30 transition-colors">
+                  <AlertTriangle size={20} className="text-amber-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Risk Watchlist
+                  </span>
+                </div>
+              </button>
+
+              {/* Communication Aids */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-indigo-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-500/20 group-hover:bg-indigo-500/30 transition-colors">
+                  <MessageCircle size={20} className="text-indigo-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Communication Aids
+                  </span>
+                </div>
+              </button>
+
+              {/* Social Media Weekly Plan */}
+              <button className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-pink-500/50 transition-all text-center">
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-pink-500/20 group-hover:bg-pink-500/30 transition-colors">
+                  <Share2 size={20} className="text-pink-400" />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
+                    Social Media Plan
+                  </span>
+                </div>
+              </button>
+
+              {/* Amazon Warfare */}
               <button
                 onClick={() => router.push('/amazon-warfare')}
-                className="glass-card p-4 flex items-center gap-4 group hover:ring-1 hover:ring-red-500/50 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all"
+                className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-red-500/50 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all text-center"
               >
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 group-hover:from-red-500/30 group-hover:to-orange-500/30 transition-colors">
-                  <Zap size={24} className="text-red-400" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 group-hover:from-red-500/30 group-hover:to-orange-500/30 transition-colors">
+                  <Zap size={20} className="text-red-400" />
                 </div>
-                <div className="text-left">
-                  <span className="text-sm font-semibold text-dark-text group-hover:text-white transition-colors">
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
                     Amazon Warfare
                   </span>
-                  <p className="text-xs text-dark-text-secondary">Competitive Analysis</p>
                 </div>
               </button>
 
-              <button className="glass-card p-4 flex items-center gap-4 group hover:ring-1 hover:ring-spark-yellow/50 transition-all">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-spark-yellow/20 group-hover:bg-spark-yellow/30 transition-colors">
-                  <Target size={24} className="text-spark-yellow" />
+              {/* Visual Merch */}
+              <button
+                onClick={() => router.push('/visual-merchandising')}
+                className="glass-card p-3 flex flex-col items-center gap-2 group hover:ring-1 hover:ring-spark-yellow/50 transition-all text-center"
+              >
+                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-spark-yellow/20 group-hover:bg-spark-yellow/30 transition-colors">
+                  <Target size={20} className="text-spark-yellow" />
                 </div>
-                <div className="text-left">
-                  <span className="text-sm font-semibold text-dark-text group-hover:text-white transition-colors">
+                <div>
+                  <span className="text-xs font-semibold text-dark-text group-hover:text-white transition-colors block">
                     Visual Merch
                   </span>
-                  <p className="text-xs text-dark-text-secondary">Store Layouts</p>
-                </div>
-              </button>
-
-              <button className="glass-card p-4 flex items-center gap-4 group hover:ring-1 hover:ring-green-500/50 transition-all">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-green-500/20 group-hover:bg-green-500/30 transition-colors">
-                  <CheckCircle2 size={24} className="text-green-400" />
-                </div>
-                <div className="text-left">
-                  <span className="text-sm font-semibold text-dark-text group-hover:text-white transition-colors">
-                    Task Manager
-                  </span>
-                  <p className="text-xs text-dark-text-secondary">Daily Operations</p>
-                </div>
-              </button>
-
-              <button className="glass-card p-4 flex items-center gap-4 group hover:ring-1 hover:ring-purple-500/50 transition-all">
-                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-purple-500/20 group-hover:bg-purple-500/30 transition-colors">
-                  <Clock size={24} className="text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <span className="text-sm font-semibold text-dark-text group-hover:text-white transition-colors">
-                    Scheduling
-                  </span>
-                  <p className="text-xs text-dark-text-secondary">Labor Management</p>
                 </div>
               </button>
             </div>
