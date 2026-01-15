@@ -11,8 +11,7 @@ import {
   Lightbulb,
   RefreshCw,
 } from 'lucide-react';
-import { useAppStore } from '@/stores/appStore';
-import { MARKET_396_STORES } from '@/data/stores';
+import { STORE_2593 } from '@/data/stores';
 
 interface DemographicData {
   population: string;
@@ -23,63 +22,34 @@ interface DemographicData {
   topEmployers: string[];
   keyInsight: string;
   lastUpdated: string;
-  zipCode: string;
-  city: string;
 }
 
 export default function Demographics() {
-  const { selectedStore } = useAppStore();
-  const store = selectedStore || MARKET_396_STORES[0];
-
-  // Use store ID for reliable change detection
-  const storeId = store.id;
+  const store = STORE_2593;
 
   const [data, setData] = useState<DemographicData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Refetch demographics when store changes (using storeId for reliable detection)
-  useEffect(() => {
-    const fetchDemographics = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams({
-          zip: store.zip,
-          city: store.city,
-        });
-        // Add cache-busting and disable browser cache
-        const response = await fetch(`/api/demographics?${params}&_t=${Date.now()}`, {
-          cache: 'no-store',
-        });
-        if (!response.ok) throw new Error('Failed to fetch demographics');
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        setError('Unable to load demographic data');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDemographics();
-  }, [storeId, store.zip, store.city]);
-
-  // Retry function for error state
-  const handleRetry = () => {
+  const fetchDemographics = async () => {
     setLoading(true);
     setError(null);
-    const params = new URLSearchParams({
-      zip: store.zip,
-      city: store.city,
-    });
-    fetch(`/api/demographics?${params}&_t=${Date.now()}`, { cache: 'no-store' })
-      .then(res => res.json())
-      .then(result => setData(result))
-      .catch(() => setError('Unable to load demographic data'))
-      .finally(() => setLoading(false));
+    try {
+      const response = await fetch('/api/demographics');
+      if (!response.ok) throw new Error('Failed to fetch demographics');
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      setError('Unable to load demographic data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchDemographics();
+  }, []);
 
   if (loading) {
     return (
@@ -107,7 +77,7 @@ export default function Demographics() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-dark-text">Market Demographics</h2>
           <button
-            onClick={handleRetry}
+            onClick={fetchDemographics}
             className="text-sm text-walmart-blue hover:text-walmart-blue/80 flex items-center gap-1"
           >
             <RefreshCw size={14} /> Retry
