@@ -20,12 +20,11 @@ import {
   MessageCircle,
   Share2,
 } from 'lucide-react';
-import { Header, Sidebar, SectionTabs, LocalEvents } from '@/components';
+import { Header, LocalEvents } from '@/components';
 import { useAppStore } from '@/stores/appStore';
 import {
   MARKET_396_STORES,
   getTotalDailyTraffic,
-  SECTIONS,
 } from '@/data/stores';
 
 // Calculate market-wide metrics
@@ -46,10 +45,7 @@ function getMarketMetrics() {
 
 export default function Dashboard() {
   const router = useRouter();
-  const {
-    selectedStore,
-    activeSection,
-  } = useAppStore();
+  const { selectedStore } = useAppStore();
 
   const [isReportHovered, setIsReportHovered] = useState(false);
   const metrics = getMarketMetrics();
@@ -64,24 +60,13 @@ export default function Dashboard() {
     }
   };
 
-  // Get active section details
-  const activeSectionData = activeSection
-    ? SECTIONS.find((s) => s.key === activeSection)
-    : null;
-
   return (
     <div className="min-h-screen bg-dark-bg">
       {/* Header */}
       <Header />
 
-      {/* Sidebar */}
-      <Sidebar />
-
       {/* Main Content */}
-      <main className="pt-16 lg:pl-72 min-h-screen">
-        {/* Mobile Section Tabs */}
-        <SectionTabs />
-
+      <main className="pt-16 min-h-screen">
         {/* Page Content */}
         <div className="p-4 lg:p-8">
           {/* Page Header */}
@@ -89,24 +74,10 @@ export default function Dashboard() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold text-dark-text">
-                  {activeSectionData ? (
-                    <span className="flex items-center gap-3">
-                      <span
-                        className="flex items-center justify-center w-10 h-10 rounded-xl text-white text-lg"
-                        style={{ backgroundColor: activeSectionData.color }}
-                      >
-                        {activeSectionData.key}
-                      </span>
-                      Section {activeSectionData.key}: {activeSectionData.name}
-                    </span>
-                  ) : (
-                    'Market 396 Dashboard'
-                  )}
+                  Market 396 Dashboard
                 </h1>
                 <p className="text-dark-text-secondary mt-1">
-                  {activeSectionData
-                    ? activeSectionData.description
-                    : 'Real-time operations overview for Las Vegas Metro stores'}
+                  Real-time operations overview for Las Vegas Metro stores
                 </p>
               </div>
 
@@ -344,63 +315,6 @@ export default function Dashboard() {
 
           {/* Local Events - Perplexity AI Powered */}
           <LocalEvents />
-
-          {/* Section Details (when a section is selected) */}
-          {activeSectionData && (
-            <section className="mt-8 animate-fade-in">
-              <div
-                className="glass-card p-6"
-                style={{
-                  borderLeft: `4px solid ${activeSectionData.color}`,
-                }}
-              >
-                <h3 className="text-xl font-bold text-dark-text mb-4">
-                  Section {activeSectionData.key}: {activeSectionData.name}
-                </h3>
-                <p className="text-dark-text-secondary mb-4">{activeSectionData.description}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="text-sm font-medium text-dark-text-secondary mb-2">
-                      Departments
-                    </h4>
-                    <ul className="space-y-2">
-                      {activeSectionData.departments.map((dept) => (
-                        <li
-                          key={dept}
-                          className="flex items-center gap-2 text-sm text-dark-text"
-                        >
-                          <span
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: activeSectionData.color }}
-                          />
-                          {dept}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-dark-text-secondary mb-2">
-                      Actions
-                    </h4>
-                    <div className="space-y-2">
-                      <button
-                        className="w-full px-4 py-2 rounded-lg text-sm font-medium text-left transition-colors"
-                        style={{
-                          backgroundColor: `${activeSectionData.color}20`,
-                          color: activeSectionData.color,
-                        }}
-                      >
-                        View Section Report
-                      </button>
-                      <button className="w-full px-4 py-2 rounded-lg text-sm font-medium text-left bg-dark-surface text-dark-text hover:bg-dark-border transition-colors">
-                        Manage Tasks
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
         </div>
       </main>
     </div>
