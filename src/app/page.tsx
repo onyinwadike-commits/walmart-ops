@@ -13,7 +13,7 @@ import {
   Users,
   MapPin,
 } from 'lucide-react';
-import { Header, Sidebar, StoreCard, SectionTabs } from '@/components';
+import { Header, Sidebar, SectionTabs, LocalEvents } from '@/components';
 import { useAppStore } from '@/stores/appStore';
 import {
   MARKET_396_STORES,
@@ -41,7 +41,6 @@ export default function Dashboard() {
   const router = useRouter();
   const {
     selectedStore,
-    setSelectedStore,
     activeSection,
   } = useAppStore();
 
@@ -249,33 +248,8 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Store Cards Grid */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-dark-text">
-                Market 396 Stores
-              </h2>
-              <span className="text-sm text-dark-text-secondary">
-                {MARKET_396_STORES.length} stores
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {MARKET_396_STORES.map((store, index) => (
-                <div
-                  key={store.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <StoreCard
-                    store={store}
-                    isSelected={selectedStore?.id === store.id}
-                    onSelect={() => setSelectedStore(store)}
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
+          {/* Local Events - Perplexity AI Powered */}
+          <LocalEvents />
 
           {/* Section Details (when a section is selected) */}
           {activeSectionData && (
