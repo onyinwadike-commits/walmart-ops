@@ -691,7 +691,7 @@ function getMockReport(sectionId: SectionId, store: typeof STORE_2593, weather: 
     A: [
       {
         heading: "Today's Priority Focus",
-        content: `Based on ${weather} conditions and ${dayOfWeek} traffic patterns.`,
+        content: `Based on ${weather} conditions, ${dayOfWeek} traffic patterns, and local events: ${events}.`,
         items: [
           'Focus on Fresh department replenishment before 10 AM rush',
           'Ensure OGP staging area is cleared for afternoon pickup surge',
