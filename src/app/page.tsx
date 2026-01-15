@@ -7,9 +7,6 @@ import {
   ArrowRight,
   Zap,
   Target,
-  Building2,
-  Users,
-  MapPin,
   FileText,
   ListChecks,
   TrendingUp,
@@ -20,35 +17,15 @@ import {
   MessageCircle,
   Share2,
 } from 'lucide-react';
-import { Header, LocalEvents } from '@/components';
+import { Header, LocalEvents, Demographics } from '@/components';
 import { useAppStore } from '@/stores/appStore';
-import {
-  MARKET_396_STORES,
-  getTotalDailyTraffic,
-} from '@/data/stores';
-
-// Calculate market-wide metrics
-function getMarketMetrics() {
-  const totalDailyTraffic = getTotalDailyTraffic();
-  const supercenters = MARKET_396_STORES.filter(s => s.format === 'Supercenter').length;
-  const neighborhoodMarkets = MARKET_396_STORES.filter(s => s.format === 'Neighborhood Market').length;
-  const aPlusTierStores = MARKET_396_STORES.filter(s => s.tier === 'A+').length;
-
-  return {
-    totalDailyTraffic,
-    supercenters,
-    neighborhoodMarkets,
-    aPlusTierStores,
-    storeCount: MARKET_396_STORES.length,
-  };
-}
+import { MARKET_396_STORES } from '@/data/stores';
 
 export default function Dashboard() {
   const router = useRouter();
   const { selectedStore } = useAppStore();
 
   const [isReportHovered, setIsReportHovered] = useState(false);
-  const metrics = getMarketMetrics();
 
   // Navigate to report page for selected store
   const handleGenerateReport = () => {
@@ -117,57 +94,8 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Market Overview */}
-          <section className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-dark-text">Market Overview</h2>
-              <span className="text-sm text-dark-text-secondary">
-                Las Vegas Metro Area
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="glass-card p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-walmart-blue/20">
-                    <Building2 size={20} className="text-walmart-blue" />
-                  </div>
-                  <span className="text-2xl font-bold text-dark-text">{metrics.storeCount}</span>
-                </div>
-                <p className="text-sm text-dark-text-secondary">Total Stores</p>
-              </div>
-
-              <div className="glass-card p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-green-500/20">
-                    <Building2 size={20} className="text-green-400" />
-                  </div>
-                  <span className="text-2xl font-bold text-dark-text">{metrics.supercenters}</span>
-                </div>
-                <p className="text-sm text-dark-text-secondary">Supercenters</p>
-              </div>
-
-              <div className="glass-card p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-500/20">
-                    <MapPin size={20} className="text-purple-400" />
-                  </div>
-                  <span className="text-2xl font-bold text-dark-text">{metrics.neighborhoodMarkets}</span>
-                </div>
-                <p className="text-sm text-dark-text-secondary">Neighborhood Markets</p>
-              </div>
-
-              <div className="glass-card p-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-spark-yellow/20">
-                    <Users size={20} className="text-spark-yellow" />
-                  </div>
-                  <span className="text-2xl font-bold text-dark-text">{metrics.totalDailyTraffic.toLocaleString()}</span>
-                </div>
-                <p className="text-sm text-dark-text-secondary">Avg Daily Traffic</p>
-              </div>
-            </div>
-          </section>
+          {/* Market Demographics - AI Powered */}
+          <Demographics />
 
           {/* Quick Actions */}
           <section className="mb-8">
