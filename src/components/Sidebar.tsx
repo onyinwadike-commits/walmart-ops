@@ -2,6 +2,7 @@
 
 import { useAppStore } from '@/stores/appStore';
 import { SECTIONS, SectionKey } from '@/data/stores';
+import SidebarWeather from './SidebarWeather';
 import {
   FileText,
   ListChecks,
@@ -156,37 +157,8 @@ export default function Sidebar() {
             </ul>
           </nav>
 
-          {/* Sidebar Footer - Quick Stats */}
-          <div className="px-4 py-4 border-t border-dark-border">
-            <div className="glass-card p-4 rounded-xl">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-dark-text-secondary uppercase">
-                  Quick Stats
-                </span>
-                <span className="text-[10px] text-spark-yellow font-medium">
-                  Live
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <span className="text-lg font-bold text-walmart-blue">
-                    {SECTIONS.length}
-                  </span>
-                  <span className="text-xs text-dark-text-secondary block">
-                    Sections
-                  </span>
-                </div>
-                <div>
-                  <span className="text-lg font-bold text-spark-yellow">
-                    {selectedStore?.avgDailyTraffic.toLocaleString() || '-'}
-                  </span>
-                  <span className="text-xs text-dark-text-secondary block">
-                    Daily Traffic
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Sidebar Footer - Weather */}
+          <SidebarWeather />
         </div>
       </aside>
     </>
