@@ -51,10 +51,10 @@ export default function Dashboard() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold text-dark-text">
-                  Market 396 Dashboard
+                  Store {selectedStore?.number || MARKET_396_STORES[0].number} | Market 396 Dashboard
                 </h1>
                 <p className="text-dark-text-secondary mt-1">
-                  Real-time operations overview for Las Vegas Metro stores
+                  Real-Time Operations Insights for Store Leaders
                 </p>
               </div>
 
